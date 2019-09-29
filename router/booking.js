@@ -6,6 +6,7 @@ const dataBaseConnection = require("./dataBaseConnection");
 const collections = require("../constant").collections;
 const ObjectID = require("mongodb").ObjectID;
 const moment = require("moment");
+const momentTimeZone = require("moment-timezone");
 
 const {
   findAll,
@@ -28,10 +29,12 @@ dataBaseConnection().then(dbs => {
     try {
       const filter = {
         months: {
-          $elemMatch: { monthNumber: req.body.month, year: req.body.year }
+          $elemMatch: { month: req.body.month, year: req.body.year }
         },
         cancel: false
       };
+
+      console.log(filter);
       findByObj(dbs, collections.booking, filter).then(result =>
         res.send(result)
       );
@@ -41,6 +44,9 @@ dataBaseConnection().then(dbs => {
   });
 
   getMonths = (checkIn, checkOut) => {
+    checkIn = momentTimeZone.tz(checkIn, "Asia/Kolkata").format();
+    checkOut = momentTimeZone.tz(checkOut, "Asia/Kolkata").format();
+
     let months = [];
     const diffrenceInMonth = moment(checkOut).month() - moment(checkIn).month();
 
@@ -58,10 +64,8 @@ dataBaseConnection().then(dbs => {
   router.post("/bookings/insert", cors(), async (req, res) => {
     try {
       let booking = req.body;
-      booking["balance"] = req.body.amount - req.body.advance;
-      booking["months"] = getMonths(req.body.checkIn, req.body.checkOut);
-      booking["misc"] = [];
-      booking["bookingDate"] = new Date();
+      booking["months"] = getMonths(booking.checkIn, booking.checkOut);
+
       insertOne(dbs, collections.booking, booking).then(result =>
         res.status(200).send(result)
       );

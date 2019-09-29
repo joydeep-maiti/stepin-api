@@ -34,7 +34,6 @@ dataBaseConnection().then(dbs => {
         cancel: false
       };
 
-      console.log(filter);
       findByObj(dbs, collections.booking, filter).then(result =>
         res.send(result)
       );

@@ -28,15 +28,19 @@ dataBaseConnection().then(dbs => {
   router.post("/bookings/filterByMonth", cors(), async (req, res) => {
     try {
       const filter = {
-        months: {
-          $elemMatch: { month: req.body.month, year: req.body.year }
-        },
-        cancel: false
+        $and: [
+          {
+            months: {
+              $elemMatch: { month: req.body.month, year: req.body.year }
+            }
+          },
+          { "status.cancel": { $eq: false } }
+        ]
       };
 
-      findByObj(dbs, collections.booking, filter).then(result =>
-        res.send(result)
-      );
+      findByObj(dbs, collections.booking, filter).then(result => {
+        res.send(result);
+      });
     } catch (error) {
       console.log(error);
     }
@@ -73,21 +77,10 @@ dataBaseConnection().then(dbs => {
     }
   });
 
-  router.post("/bookings/update", cors(), async (req, res) => {
+  router.put("/bookings/update", cors(), async (req, res) => {
     try {
       let booking = req.body;
-      if (
-        !(
-          req.body.cancel ||
-          req.body.checkedIn ||
-          req.body.checkedOut ||
-          req.body.reportGenerated
-        )
-      ) {
-        booking["balance"] = req.body.amount - req.body.advance;
-        booking["months"] = getMonths(req.body.checkIn, req.body.checkOut);
-        booking["misc"] = [];
-      }
+      booking["months"] = getMonths(req.body.checkIn, req.body.checkOut);
       booking["_id"] = new ObjectID(booking._id);
       updateOne(
         dbs,

@@ -60,7 +60,6 @@ dataBaseConnection().then(dbs => {
       );
       months.push(obj);
     }
-
     return months;
   };
 

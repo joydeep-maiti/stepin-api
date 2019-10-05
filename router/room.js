@@ -29,16 +29,16 @@ dataBaseConnection().then(dbs => {
     }
   });
 
-  router.post("/rooms/available/timestamp", cors(), async (req, res) => {
+  router.post("/rooms/available", cors(), async (req, res) => {
     try {
-      const basicCheckIn = moment.unix(req.body.checkIn).toDate();
-      const basicCheckOut = moment.unix(req.body.checkOut).toDate();
-
-      let checkIn = momentTimeZone.tz(basicCheckIn, "Asia/Kolkata").format();
-      let checkOut = momentTimeZone.tz(basicCheckOut, "Asia/Kolkata").format();
+      let checkIn = momentTimeZone
+        .tz(req.body.checkIn, "Asia/Kolkata")
+        .format();
+      let checkOut = momentTimeZone
+        .tz(req.body.checkOut, "Asia/Kolkata")
+        .format();
 
       let diffrenceInMonth = moment(checkOut).month() - moment(checkIn).month();
-
       let bookings = [],
         filteredRooms = [];
 
@@ -47,13 +47,18 @@ dataBaseConnection().then(dbs => {
           moment(checkIn).month() + index,
           moment(checkIn).year()
         );
+
         const filter = {
-          months: {
-            $elemMatch: obj
-          },
-          checkedOut: false,
-          cancel: false
+          $and: [
+            {
+              months: {
+                $elemMatch: obj
+              }
+            },
+            { "status.cancel": { $eq: false } }
+          ]
         };
+
         result = await findByObj(dbs, collections.booking, filter);
         bookings = result.length > 0 ? bookings.concat(result) : bookings;
       }
@@ -116,9 +121,12 @@ dataBaseConnection().then(dbs => {
       filteredRooms = [...new Set(filteredRooms)];
 
       const allRooms = await findAll(dbs, collections.room);
+      let availableRooms = allRooms;
 
-      const availableRooms = allRooms.filter(room => {
-        return filteredRooms.indexOf(room._id.toString()) < 0;
+      filteredRooms.forEach(filteredRoom => {
+        availableRooms = availableRooms.filter(
+          room => room._id.toString() !== filteredRoom._id.toString()
+        );
       });
 
       res.send(availableRooms);

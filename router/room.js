@@ -129,7 +129,7 @@ dataBaseConnection().then(dbs => {
         );
       });
 
-      res.send(availableRooms);
+      res.send(sortRooms(availableRooms));
     } catch (error) {
       console.log(error);
     }

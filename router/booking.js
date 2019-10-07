@@ -91,19 +91,6 @@ dataBaseConnection().then(dbs => {
       console.log(error);
     }
   });
-
-  // router.get('/getBookingDetails/:id', cors(), async (req, res) => {
-  //     try {
-  //         const bookingObjectID = new ObjectID(req.params.id);
-  //         const bookingObj = await findOnePromise(dbs, collections.bookings, { _id: bookingObjectID });
-  //         const personObjectID = new ObjectID(bookingObj.personId);
-  //         const personObj = await findOnePromise(dbs, collections.persons, { _id: personObjectID });
-  //         bookingObj.bookingId = bookingObj._id;
-  //         res.send({ ...bookingObj, ...personObj });
-  //     } catch (error) {
-  //         console.log(error);
-  //     }
-  // })
 });
 
 module.exports = router;

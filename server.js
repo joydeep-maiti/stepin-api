@@ -3,6 +3,7 @@ const express = require("express");
 
 const bookingRouter = require("./router/booking");
 const roomRouter = require("./router/room");
+const taxRouter = require("./router/tax");
 const bodyParser = require("body-parser");
 require("./router/dataBaseConnection");
 
@@ -25,6 +26,7 @@ app.use(function(req, res, next) {
 
 app.use(bookingRouter);
 app.use(roomRouter);
+app.use(taxRouter);
 
 app.use(express.json());
 

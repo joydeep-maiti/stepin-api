@@ -67,6 +67,7 @@ dataBaseConnection().then(dbs => {
     try {
       let booking = req.body;
       booking["months"] = getMonths(booking.checkIn, booking.checkOut);
+      booking["bookingId"] = booking.firstName + booking.lastName;
 
       insertOne(dbs, collections.booking, booking).then(result =>
         res.status(200).send(result)

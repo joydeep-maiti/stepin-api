@@ -3,7 +3,7 @@ const constants = require('../constant');
 const mongoUrl = constants.mongoUrl;
 
 connect = (url) => {
-    return MongoClient.connect(url).then(client => client.db());
+    return MongoClient.connect(url,{ useUnifiedTopology: true }).then(client => client.db());
 }
 
 module.exports = async () => {

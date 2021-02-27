@@ -16,12 +16,13 @@
     "express": "^4.17.1",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.26",
-    "mongodb": "^3.2.7"
+    "mongodb": "^3.2.7",
+    "nodemon": "^2.0.7"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "env-cmd -f ./config/prod.env node server.js",
-    "dev": "env-cmd -f ./config/dev.env nodemon server.js"
+    "dev": "env-cmd -f ./config/prod.env nodemon server.js"
   },
   "keywords": [],
   "author": "",

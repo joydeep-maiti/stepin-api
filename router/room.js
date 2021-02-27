@@ -20,6 +20,7 @@ const sortRooms = rooms => {
 
 dataBaseConnection().then(dbs => {
   router.get("/rooms", cors(), (req, res) => {
+    console.log("/rooms")
     try {
       findAll(dbs, collections.room).then(result =>
         res.send(sortRooms(result))

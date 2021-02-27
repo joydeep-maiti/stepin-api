@@ -20,6 +20,9 @@ module.exports = {
   updateOne: async (dbs, collectionName, query, newValue) => {
     return await dbs.collection(collectionName).updateOne(query, newValue);
   },
+  deleteOne: async (dbs, collectionName, query) => {
+    return await dbs.collection(collectionName).deleteOne(query);
+  },
   findByMatch: async (dbs, collectionName, filterArray) => {
     return await dbs
       .collection(collectionName)
@@ -29,5 +32,5 @@ module.exports = {
   correctMonthAndYear: (month, year) => {
     if (month > 11) return { month: month - 12, year: year + 1 };
     else return { month, year };
-  }
+  },
 };

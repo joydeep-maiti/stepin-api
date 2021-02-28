@@ -4,9 +4,10 @@ const cors = require("cors");
 const router = new express.Router();
 const dataBaseConnection = require("./dataBaseConnection");
 const collections = require("../constant").collections;
-const { findAll, findByObj, correctMonthAndYear } = require("./data");
+const { findAll, findByObj, correctMonthAndYear, insertOne, updateOne, deleteOne } = require("./data");
 const moment = require("moment");
 const momentTimeZone = require("moment-timezone");
+const { ObjectID } = require("mongodb");
 
 const sortRooms = rooms => {
   rooms.sort((a, b) => {
@@ -30,6 +31,7 @@ dataBaseConnection().then(dbs => {
     }
   });
 
+  
   router.post("/rooms/available", cors(), async (req, res) => {
     let filteredRooms = [],
       dateObjs = [];
@@ -123,6 +125,35 @@ dataBaseConnection().then(dbs => {
 
     res.send(sortRooms(getUpdatedRooms(availableRooms)));
   });
+
+  router.post("/rooms", cors(), async (req, res) => {
+    console.log("POST /rooms", req.body)
+    try {
+      insertOne(dbs, collections.room,req.body).then(result => res.status(201).send());
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  router.patch("/rooms", cors(), async (req, res) => {
+    const {_id, ...body} = req.body
+    console.log("PATCH /rooms", req.body,body)
+    try {
+      updateOne(dbs, collections.room, {_id:new ObjectID(_id)}, {$set:body}).then(result => res.status(200).send());
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  router.delete("/rooms/:id", cors(), async (req, res) => {
+    console.log("DELETE /rooms", req.params.id)
+    try {
+      deleteOne(dbs, collections.room, {_id:new ObjectID(req.params.id)}).then(result => res.status(200).send());
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
 });
 
 module.exports = router;

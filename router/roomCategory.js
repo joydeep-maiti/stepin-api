@@ -4,7 +4,7 @@ const cors = require("cors");
 const router = new express.Router();
 const dataBaseConnection = require("./dataBaseConnection");
 const collections = require("../constant").collections;
-const { findAll, insertOne, updateOne, deleteOne } = require("./data");
+const { findAll, findOne, insertOne, updateOne, deleteOne } = require("./data");
 const { ObjectID } = require("mongodb");
 
 dataBaseConnection().then(dbs => {
@@ -20,7 +20,15 @@ dataBaseConnection().then(dbs => {
   router.post("/roomcategory", cors(), async (req, res) => {
     console.log("POST /roomcategory", req.body)
     try {
-      insertOne(dbs, collections.roomcategory,req.body).then(result => res.status(201).send());
+      findOne(dbs, collections.roomcategory,{roomType:req.body.roomType})
+      .then(result => {
+        if(result){
+          console.log(result)
+          res.status(400).send({msg:"Room Type already exist!"})
+        }else{
+          insertOne(dbs, collections.roomcategory,req.body).then(result => res.status(201).send());
+        }
+      });
     } catch (error) {
       console.log(error);
     }

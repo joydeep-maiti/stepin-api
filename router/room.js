@@ -4,7 +4,7 @@ const cors = require("cors");
 const router = new express.Router();
 const dataBaseConnection = require("./dataBaseConnection");
 const collections = require("../constant").collections;
-const { findAll, findByObj, correctMonthAndYear, insertOne, updateOne, deleteOne } = require("./data");
+const { findAll, findOne, findByObj, correctMonthAndYear, insertOne, updateOne, deleteOne } = require("./data");
 const moment = require("moment");
 const momentTimeZone = require("moment-timezone");
 const { ObjectID } = require("mongodb");
@@ -129,7 +129,15 @@ dataBaseConnection().then(dbs => {
   router.post("/rooms", cors(), async (req, res) => {
     console.log("POST /rooms", req.body)
     try {
-      insertOne(dbs, collections.room,req.body).then(result => res.status(201).send());
+      findOne(dbs, collections.room,{roomNumber:req.body.roomNumber})
+      .then(result => {
+        if(result){
+          console.log(result)
+          res.status(400).send({msg:"Room already exist!"})
+        }else{
+          insertOne(dbs, collections.room,req.body).then(result => res.status(201).send());
+        }
+      });
     } catch (error) {
       console.log(error);
     }

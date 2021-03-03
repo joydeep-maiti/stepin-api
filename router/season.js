@@ -24,13 +24,14 @@ dataBaseConnection().then(dbs => {
       .then(result => {
         if(result){
           console.log(result)
-          res.status(400).send({msg:"Season already exist!"})
+          res.status(400).json({msg:"Season already exist!"})
         }else{
           insertOne(dbs, collections.season,req.body).then(result => res.status(201).send());
         }
       });
     } catch (error) {
       console.log(error);
+      res.status(500).send()
     }
   });
 

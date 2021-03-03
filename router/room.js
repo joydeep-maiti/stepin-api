@@ -133,7 +133,7 @@ dataBaseConnection().then(dbs => {
       .then(result => {
         if(result){
           console.log(result)
-          res.status(400).send({msg:"Room already exist!"})
+          res.status(400).json({msg:"Room already exist!"})
         }else{
           insertOne(dbs, collections.room,req.body).then(result => res.status(201).send());
         }

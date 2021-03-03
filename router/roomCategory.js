@@ -24,7 +24,7 @@ dataBaseConnection().then(dbs => {
       .then(result => {
         if(result){
           console.log(result)
-          res.status(400).send({msg:"Room Type already exist!"})
+          res.status(400).json({msg:"Room Type already exist!"})
         }else{
           insertOne(dbs, collections.roomcategory,req.body).then(result => res.status(201).send());
         }

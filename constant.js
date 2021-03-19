@@ -13,7 +13,8 @@ const collections = {
   booking: "booking",
   season: "season",
   roomcategory: "roomcategory",
-  tax: "tax"
+  tax: "tax",
+  rate:"rate"
 };
 
 const mongoUrl = process.env.MONGODB_URL;

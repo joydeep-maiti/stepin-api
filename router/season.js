@@ -42,9 +42,9 @@ dataBaseConnection().then(dbs => {
 
   router.patch("/season", cors(), async (req, res) => {
     const {_id, ...body} = req.body
-    console.log("PATCH /season", req.body,body)
+    console.log("PATCH /season", body)
     try {
-      const data = req.body
+      const data = body
       data.fromDate = moment(req.body.fromDate).startOf("date").toString();
       data.toDate = moment(req.body.toDate).endOf("date").toString();
       updateOne(dbs, collections.season, {_id:new ObjectID(_id)}, {$set:data}).then(result => res.status(200).send());

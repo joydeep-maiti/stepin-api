@@ -44,7 +44,10 @@ dataBaseConnection().then(dbs => {
     const {_id, ...body} = req.body
     console.log("PATCH /season", req.body,body)
     try {
-      updateOne(dbs, collections.season, {_id:new ObjectID(_id)}, {$set:body}).then(result => res.status(200).send());
+      const data = req.body
+      data.fromDate = moment(req.body.fromDate).startOf("date").toString();
+      data.toDate = moment(req.body.toDate).endOf("date").toString();
+      updateOne(dbs, collections.season, {_id:new ObjectID(_id)}, {$set:data}).then(result => res.status(200).send());
     } catch (error) {
       console.log(error);
     }

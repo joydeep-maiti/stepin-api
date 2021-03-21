@@ -72,7 +72,7 @@ dataBaseConnection().then(dbs => {
       insertOne(dbs, collections.booking, booking)
       .then(result =>
         insertOne(dbs, collections.idproof, {
-          bookinId: result.insertedId,
+          bookingId: result.insertedId,
           idProofImage: idProofImage
         })
       )
@@ -98,8 +98,8 @@ dataBaseConnection().then(dbs => {
         updateOne(
           dbs,
           collections.idproof,
-          { _id: booking._id },
-          { $set: idProofImage }
+          { bookingId: booking._id },
+          { $set: {idProofImage:idProofImage} }
         )
       )
       .then(result => 

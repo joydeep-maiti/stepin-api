@@ -65,11 +65,18 @@ dataBaseConnection().then(dbs => {
 
   router.post("/bookings/insert", cors(), async (req, res) => {
     try {
-      let booking = req.body;
+      let {idProofImage,...booking} = req.body;
       booking["months"] = getMonths(booking.checkIn, booking.checkOut);
       booking["bookingId"] = booking.firstName + booking.lastName;
 
-      insertOne(dbs, collections.booking, booking).then(result =>
+      insertOne(dbs, collections.booking, booking)
+      .then(result =>
+        insertOne(dbs, collections.idproof, {
+          bookinId: result.insertedId,
+          idProofImage: idProofImage
+        })
+      )
+      .then(result =>
         res.status(200).send(result)
       );
     } catch (error) {
@@ -79,7 +86,7 @@ dataBaseConnection().then(dbs => {
 
   router.put("/bookings/update", cors(), async (req, res) => {
     try {
-      let booking = req.body;
+      let {idProofImage,...booking} = req.body;
       booking["months"] = getMonths(req.body.checkIn, req.body.checkOut);
       booking["_id"] = new ObjectID(booking._id);
       updateOne(
@@ -87,7 +94,17 @@ dataBaseConnection().then(dbs => {
         collections.booking,
         { _id: booking._id },
         { $set: booking }
-      ).then(result => res.status(200).send(result));
+      ).then(result => 
+        updateOne(
+          dbs,
+          collections.idproof,
+          { _id: booking._id },
+          { $set: idProofImage }
+        )
+      )
+      .then(result => 
+        res.status(200).send(result)
+      );
     } catch (error) {
       console.log(error);
     }

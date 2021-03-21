@@ -26,7 +26,10 @@ dataBaseConnection().then(dbs => {
           console.log(result)
           res.status(400).json({msg:"Room Type already exist!"})
         }else{
-          insertOne(dbs, collections.roomcategory,req.body).then(result => res.status(201).send());
+          insertOne(dbs, collections.roomcategory,req.body).then(result => {
+            console.log("result",result)
+            res.status(201).send()
+          });
         }
       });
     } catch (error) {

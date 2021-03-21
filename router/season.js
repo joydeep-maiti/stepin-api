@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const moment = require("moment")
 
 const router = new express.Router();
 const dataBaseConnection = require("./dataBaseConnection");
@@ -19,6 +20,7 @@ dataBaseConnection().then(dbs => {
 
   router.post("/season", cors(), async (req, res) => {
     console.log("POST /season", req.body)
+
     try {
       findOne(dbs, collections.season,{season:req.body.season})
       .then(result => {
@@ -26,7 +28,10 @@ dataBaseConnection().then(dbs => {
           console.log(result)
           res.status(400).json({msg:"Season already exist!"})
         }else{
-          insertOne(dbs, collections.season,req.body).then(result => res.status(201).send());
+          const data = req.body
+          data.fromDate = moment(req.body.fromDate).startOf("date").toString();
+          data.toDate = moment(req.body.toDate).endOf("date").toString();
+          insertOne(dbs, collections.season,data).then(result => res.status(201).send());
         }
       });
     } catch (error) {

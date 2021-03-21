@@ -10,6 +10,7 @@ const momentTimeZone = require("moment-timezone");
 
 const {
   findAll,
+  findOne,
   findByObj,
   insertOne,
   updateOne,
@@ -19,7 +20,15 @@ const {
 dataBaseConnection().then(dbs => {
   router.get("/bookings", cors(), async (req, res) => {
     try {
-      findAll(dbs, collections.booking).then(result => res.send(result));
+      findAll(dbs, collections.booking).then(result => res.status(200).send(result));
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  router.get("/booking/idproof/:id", cors(), async (req, res) => {
+    try {
+      findOne(dbs, collections.idproof, {bookingId:new ObjectID(req.params.id)}).then(result => res.status(200).send(result));
     } catch (error) {
       console.log(error);
     }

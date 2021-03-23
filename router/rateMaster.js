@@ -21,12 +21,23 @@ dataBaseConnection().then(dbs => {
                   foreignField: "_id",
                   as: "seasondetails"
              }
-            },
-             {
-                  $unwind:{
-                      path:"$seasondetails"
-                    }
-             }
+             
+          },
+          
+          //var seasonType = seasondetails.season;
+          { 
+            $sort : 
+            { 
+              "seasondetails.season" : 1,
+              roomType : 1,
+              planType : 1
+             } 
+            }
+            ,{
+              $unwind:{
+                  path:"$seasondetails"
+                }
+         },
         ]) .toArray(function(err, result) {
              res.send(result)
             })

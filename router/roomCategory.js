@@ -20,7 +20,8 @@ dataBaseConnection().then(dbs => {
   router.post("/roomcategory", cors(), async (req, res) => {
     console.log("POST /roomcategory", req.body)
     try {
-      findOne(dbs, collections.roomcategory,{roomType:req.body.roomType})
+      let regex = new RegExp(["^", req.body.roomType, "$"].join(""), "i")
+      findOne(dbs, collections.roomcategory,{roomType:{$regex:regex}})
       .then(result => {
         if(result){
           console.log(result)

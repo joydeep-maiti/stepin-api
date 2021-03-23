@@ -22,7 +22,9 @@ dataBaseConnection().then(dbs => {
     console.log("POST /season", req.body)
 
     try {
-      findOne(dbs, collections.season,{season:req.body.season})
+      let regex = new RegExp(["^", req.body.season, "$"].join(""), "i")
+      console.log("regex",regex)
+      findOne(dbs, collections.season,{season:{$regex:regex}})
       .then(result => {
         if(result){
           console.log(result)

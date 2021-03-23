@@ -10,6 +10,7 @@ const momentTimeZone = require("moment-timezone");
 
 const {
   findAll,
+  findOne,
   findByObj,
   insertOne,
   updateOne,
@@ -19,7 +20,15 @@ const {
 dataBaseConnection().then(dbs => {
   router.get("/bookings", cors(), async (req, res) => {
     try {
-      findAll(dbs, collections.booking).then(result => res.send(result));
+      findAll(dbs, collections.booking).then(result => res.status(200).send(result));
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  router.get("/booking/idproof/:id", cors(), async (req, res) => {
+    try {
+      findOne(dbs, collections.idproof, {bookingId:new ObjectID(req.params.id)}).then(result => res.status(200).send(result));
     } catch (error) {
       console.log(error);
     }
@@ -65,11 +74,18 @@ dataBaseConnection().then(dbs => {
 
   router.post("/bookings/insert", cors(), async (req, res) => {
     try {
-      let booking = req.body;
+      let {idProofImage,...booking} = req.body;
       booking["months"] = getMonths(booking.checkIn, booking.checkOut);
       booking["bookingId"] = booking.firstName + booking.lastName;
 
-      insertOne(dbs, collections.booking, booking).then(result =>
+      insertOne(dbs, collections.booking, booking)
+      .then(result =>
+        insertOne(dbs, collections.idproof, {
+          bookingId: result.insertedId,
+          idProofImage: idProofImage
+        })
+      )
+      .then(result =>
         res.status(200).send(result)
       );
     } catch (error) {
@@ -79,7 +95,7 @@ dataBaseConnection().then(dbs => {
 
   router.put("/bookings/update", cors(), async (req, res) => {
     try {
-      let booking = req.body;
+      let {idProofImage,...booking} = req.body;
       booking["months"] = getMonths(req.body.checkIn, req.body.checkOut);
       booking["_id"] = new ObjectID(booking._id);
       updateOne(
@@ -87,7 +103,17 @@ dataBaseConnection().then(dbs => {
         collections.booking,
         { _id: booking._id },
         { $set: booking }
-      ).then(result => res.status(200).send(result));
+      ).then(result => 
+        updateOne(
+          dbs,
+          collections.idproof,
+          { bookingId: booking._id },
+          { $set: {idProofImage:idProofImage} }
+        )
+      )
+      .then(result => 
+        res.status(200).send(result)
+      );
     } catch (error) {
       console.log(error);
     }

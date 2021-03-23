@@ -14,8 +14,8 @@ require("./router/dataBaseConnection");
 const app = new express();
 const server = http.createServer(app);
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({limit: "8mb"}));
+app.use(bodyParser.urlencoded({ limit: "8mb", extended: true }));
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");

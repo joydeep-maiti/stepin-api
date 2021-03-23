@@ -70,6 +70,9 @@ dataBaseConnection().then(dbs => {
     };
 
     const checkBookingNeedsToInclude = booking => {
+      // console.log(booking._id.toString());
+      if(booking._id.toString() === bookingId)
+        return false
       const checkIn = momentTimeZone.tz(booking.checkIn, zone);
       const checkOut = momentTimeZone.tz(booking.checkOut, zone);
 
@@ -85,7 +88,7 @@ dataBaseConnection().then(dbs => {
       if (compareDates(endDate, checkIn) || compareDates(endDate, checkOut))
         endDateIsInclude = true;
 
-      if (bookingId) console.log(bookingId);
+      // if (bookingId) console.log(bookingId);
 
       return startDateIsBtw ||
         endDateIsBtw ||
@@ -104,8 +107,10 @@ dataBaseConnection().then(dbs => {
         }
       });
     }
+    // debugger
 
     const filter = getfilter(dateObjs);
+    console.log("filter", JSON.stringify(filter))
     const filteredBookings = await findByObj(dbs, collections.booking, filter);
 
     filteredBookings.forEach(booking => {

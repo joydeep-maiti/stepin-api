@@ -20,13 +20,17 @@ dataBaseConnection().then(dbs => {
   router.post("/roomcategory", cors(), async (req, res) => {
     console.log("POST /roomcategory", req.body)
     try {
-      findOne(dbs, collections.roomcategory,{roomType:req.body.roomType})
+      let regex = new RegExp(["^", req.body.roomType, "$"].join(""), "i")
+      findOne(dbs, collections.roomcategory,{roomType:{$regex:regex}})
       .then(result => {
         if(result){
           console.log(result)
           res.status(400).json({msg:"Room Type already exist!"})
         }else{
-          insertOne(dbs, collections.roomcategory,req.body).then(result => res.status(201).send());
+          insertOne(dbs, collections.roomcategory,req.body).then(result => {
+            console.log("result",result)
+            res.status(201).send()
+          });
         }
       });
     } catch (error) {

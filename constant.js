@@ -14,7 +14,8 @@ const collections = {
   season: "season",
   roomcategory: "roomcategory",
   tax: "tax",
-  rate:"rate"
+  rate:"rate",
+  idproof:"idproof",
 };
 
 const mongoUrl = process.env.MONGODB_URL;

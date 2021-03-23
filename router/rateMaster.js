@@ -31,13 +31,14 @@ dataBaseConnection().then(dbs => {
               "seasondetails.season" : 1,
               roomType : 1,
               planType : 1
-             } 
+            } 
+           },
+            {
+                $unwind:{
+                    path:"$seasondetails"
+                  }
             }
-            ,{
-              $unwind:{
-                  path:"$seasondetails"
-                }
-         },
+
         ]) .toArray(function(err, result) {
              res.send(result)
             })
@@ -48,7 +49,15 @@ router.post("/rateMaster", cors(), async (req, res) => {
     let data=req.body;
     data.seasonId=ObjectID(req.body.seasonId);
     try {
+      findOne(dbs, collections.rate,{ seasonId:data.seasonId, roomType:data.roomType, planType:data.planType })
+      .then(result => {
+        if(result){
+          console.log(result)
+          res.status(400).json({msg:"Rate already exist!"})
+        }else{
           insertOne(dbs, collections.rate,data).then(result => res.status(201).send());
+        }
+      });
     } catch (error) {
       console.log(error);
       res.status(500).send()

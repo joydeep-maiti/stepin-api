@@ -1,11 +1,12 @@
 const express = require("express");
 const cors = require("cors");
+const moment = require('moment')
 
 const router = new express.Router();
 const dataBaseConnection = require("./dataBaseConnection");
 const collections = require("../constant").collections;
 //const season=require("./season");
-const { findAll, findOne,findByMatch, insertOne, updateOne, deleteOne } = require("./data");
+const { findAll, findOne,findByMatch, insertOne, updateOne, deleteOne, findByObj } = require("./data");
 const { ObjectID } = require("mongodb");
 
 
@@ -86,5 +87,68 @@ router.delete("/rateMaster/:id", cors(), async (req, res) => {
   }
 });
 
+router.get("/rate", cors(), async (req, res) => {
+  console.log("GET /rate", req.query)
+  let dates = daysBetweenDates(req.query.fromDate, req.query.toDate)
+  console.log(dates)
+  const dateRateObj = []
+  try {
+    // dbs.collection("season").find({fromDate:{$lte:'2021-03-16T18:29:59.999+00:00'}}).toArray().then(result=>{
+    //   console.log(result)
+    //   res.send(result)
+    // })
+    // findByObj(dbs, collections.season,{fromDate:{$lte:'2021-03-16T18:29:59.999+00:00'}}).then(result=>{
+    //   console.log(result)
+    //   res.send(result)
+    // })
+    for(const i in dates){
+      const date = dates[i].toISOString()
+      console.log(date)
+      findOne(dbs, collections.season,{fromDate:{$lte: date}, toDate:{$gte: date}})
+      .then((res)=>{
+        console.log(res)
+        if(res){
+          findByObj(dbs, collections.rate,{seasonId:ObjectID(res._id)})
+          .then((result)=>{
+            console.log(result)
+            dateRateObj.push({
+              date:date,
+              rate:result.rate,
+              extraRate:result.extraRate,
+              roomType:result.roomType,
+              planType:result.planType,
+              season:res.season,
+            })
+            console.log(dateRateObj)
+          })
+        }
+      })
+    }
+    
+  } catch (error) {
+    console.log(error);
+  }
+  res.status(200).send()
 });
+
+
+
+});
+
+function daysBetweenDates(startDate, endDate) {
+  let dates = [];
+  const currDate = moment(startDate).startOf("day");
+  const lastDate = moment(endDate).startOf("day");
+  console.log("lastDate",currDate,lastDate)
+  while (currDate.add(1, "days").diff(lastDate) < 0) {
+    dates.push(currDate.clone().toDate());
+  }
+
+  dates.unshift(moment(startDate).toDate());
+  // dates.push(moment(endDate).toDate());
+  // console.log(dates)
+
+  return dates;
+}
+
 module.exports = router;

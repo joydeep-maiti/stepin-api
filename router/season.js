@@ -31,8 +31,10 @@ dataBaseConnection().then(dbs => {
           res.status(400).json({msg:"Season already exist!"})
         }else{
           const data = req.body
-          data.fromDate = moment(req.body.fromDate).startOf("date").toString();
-          data.toDate = moment(req.body.toDate).endOf("date").toString();
+          data.fromDate = req.body.fromDate;
+          data.toDate = req.body.toDate;
+          // data.fromDate = moment(req.body.fromDate).startOf("date").toString();
+          // data.toDate = moment(req.body.toDate).endOf("date")._i;
           insertOne(dbs, collections.season,data).then(result => res.status(201).send());
         }
       });
@@ -47,8 +49,10 @@ dataBaseConnection().then(dbs => {
     console.log("PATCH /season", body)
     try {
       const data = body
-      data.fromDate = moment(req.body.fromDate).startOf("date").toString();
-      data.toDate = moment(req.body.toDate).endOf("date").toString();
+      // data.fromDate = moment(req.body.fromDate).startOf("date")._d;
+      // data.toDate = moment(req.body.toDate).endOf("date")._d;
+      data.fromDate = req.body.fromDate;
+      data.toDate = req.body.toDate;
       updateOne(dbs, collections.season, {_id:new ObjectID(_id)}, {$set:data}).then(result => res.status(200).send());
     } catch (error) {
       console.log(error);

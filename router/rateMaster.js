@@ -105,30 +105,50 @@ router.get("/rate", cors(), async (req, res) => {
       const date = dates[i].toISOString()
       console.log(date)
       findOne(dbs, collections.season,{fromDate:{$lte: date}, toDate:{$gte: date}})
-      .then((res)=>{
-        console.log(res)
-        if(res){
-          findByObj(dbs, collections.rate,{seasonId:ObjectID(res._id)})
+      .then((ress)=>{
+        // console.log(res)
+        if(ress){
+          findByObj(dbs, collections.rate,{seasonId:ObjectID(ress._id)})
           .then((result)=>{
-            console.log(result)
-            dateRateObj.push({
-              date:date,
-              rate:result.rate,
-              extraRate:result.extraRate,
-              roomType:result.roomType,
-              planType:result.planType,
-              season:res.season,
-            })
-            console.log(dateRateObj)
+            // console.log(result)
+            result.forEach(element => {
+              dateRateObj.push({
+                date:date,
+                ...element,
+                season:ress.season,
+              })
+            });
+            console.log("dateRateObj",i,dates.length)
+            if(i == dates.length-1){
+              console.log("in",i)
+              res.status(200).send(dateRateObj)
+            }
           })
-        }
-      })
-    }
+        }else {
+          findByObj(dbs, collections.rate,{seasonId:ObjectID('603b86c34de7fa001e6aeb7a')})
+          .then((result)=>{
+            // console.log(result)
+            result.forEach(element => {
+              dateRateObj.push({
+                date:date,
+                ...element,
+                season:'Regular',
+              })
+            });
+            console.log("dateRateObj",i,dates.length)
+            if(i == dates.length-1){
+              console.log("in",i)
+              res.status(200).send(dateRateObj)
+            }
+        })
+      }
+    })
+    } 
     
   } catch (error) {
     console.log(error);
   }
-  res.status(200).send()
+  // res.status(200).send()
 });
 
 
@@ -146,7 +166,7 @@ function daysBetweenDates(startDate, endDate) {
 
   dates.unshift(moment(startDate).toDate());
   // dates.push(moment(endDate).toDate());
-  // console.log(dates)
+  console.log(dates)
 
   return dates;
 }

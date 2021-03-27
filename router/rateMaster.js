@@ -92,64 +92,128 @@ router.get("/rate", cors(), async (req, res) => {
   let dates = daysBetweenDates(req.query.fromDate, req.query.toDate)
   console.log(dates)
   const dateRateObj = []
+  const promises = []
   try {
-    // dbs.collection("season").find({fromDate:{$lte:'2021-03-16T18:29:59.999+00:00'}}).toArray().then(result=>{
-    //   console.log(result)
-    //   res.send(result)
-    // })
-    // findByObj(dbs, collections.season,{fromDate:{$lte:'2021-03-16T18:29:59.999+00:00'}}).then(result=>{
-    //   console.log(result)
-    //   res.send(result)
-    // })
     for(const i in dates){
       const date = dates[i].toISOString()
       console.log(date)
-      findOne(dbs, collections.season,{fromDate:{$lte: date}, toDate:{$gte: date}})
-      .then((ress)=>{
-        // console.log(res)
-        if(ress){
-          findByObj(dbs, collections.rate,{seasonId:ObjectID(ress._id)})
-          .then((result)=>{
-            // console.log(result)
-            result.forEach(element => {
-              dateRateObj.push({
-                date:date,
-                ...element,
-                season:ress.season,
-              })
-            });
-            console.log("dateRateObj",i,dates.length)
-            if(i == dates.length-1){
-              console.log("in",i)
-              res.status(200).send(dateRateObj)
+      promises.push(
+        new Promise((resolve,reject)=>{
+          let season;
+          findOne(dbs, collections.season,{fromDate:{$lte: date}, toDate:{$gte: date}})
+          .then((ress)=>{
+            if(ress){
+              season = ress.season
+              return findByObj(dbs, collections.rate,{seasonId:ObjectID(ress._id)})
+            }else {
+              season = "Regular"
+              return findByObj(dbs, collections.rate,{seasonId:ObjectID('603b86c34de7fa001e6aeb7a')})
             }
           })
-        }else {
-          findByObj(dbs, collections.rate,{seasonId:ObjectID('603b86c34de7fa001e6aeb7a')})
           .then((result)=>{
-            // console.log(result)
+            let rates = []
             result.forEach(element => {
               dateRateObj.push({
                 date:date,
                 ...element,
-                season:'Regular',
+                season:season,
+              })
+              rates.push({
+                date:date,
+                ...element,
+                season:season,
               })
             });
-            console.log("dateRateObj",i,dates.length)
-            if(i == dates.length-1){
-              console.log("in",i)
-              res.status(200).send(dateRateObj)
-            }
+            resolve(rates)
+          })
+          .catch((err)=>{
+            reject("Rejected for "+date+" "+err)
+          }) 
         })
-      }
+      )  
+    }
+    Promise.all(promises)
+    .then(result=>{
+      const rates = []
+      result.map(el => {
+        rates.push(...el)
+      })
+      console.log("RESULT",rates)
+      res.status(200).send(rates)
     })
-    } 
+    .catch(()=>{
+      res.status(500).send()
+    }) 
     
   } catch (error) {
     console.log(error);
   }
   // res.status(200).send()
 });
+
+// router.get("/rate", cors(), async (req, res) => {
+//   console.log("GET /rate", req.query)
+//   let dates = daysBetweenDates(req.query.fromDate, req.query.toDate)
+//   console.log(dates)
+//   const dateRateObj = []
+//   try {
+//     // dbs.collection("season").find({fromDate:{$lte:'2021-03-16T18:29:59.999+00:00'}}).toArray().then(result=>{
+//     //   console.log(result)
+//     //   res.send(result)
+//     // })
+//     // findByObj(dbs, collections.season,{fromDate:{$lte:'2021-03-16T18:29:59.999+00:00'}}).then(result=>{
+//     //   console.log(result)
+//     //   res.send(result)
+//     // })
+//     for(const i in dates){
+//       const date = dates[i].toISOString()
+//       console.log(date)
+//       findOne(dbs, collections.season,{fromDate:{$lte: date}, toDate:{$gte: date}})
+//       .then((ress)=>{
+//         // console.log(res)
+//         if(ress){
+//           findByObj(dbs, collections.rate,{seasonId:ObjectID(ress._id)})
+//           .then((result)=>{
+//             // console.log(result)
+//             result.forEach(element => {
+//               dateRateObj.push({
+//                 date:date,
+//                 ...element,
+//                 season:ress.season,
+//               })
+//             });
+//             console.log("dateRateObj",i,dates.length)
+//             if(i == dates.length-1){
+//               console.log("in",i)
+//               res.status(200).send(dateRateObj)
+//             }
+//           })
+//         }else {
+//           findByObj(dbs, collections.rate,{seasonId:ObjectID('603b86c34de7fa001e6aeb7a')})
+//           .then((result)=>{
+//             // console.log(result)
+//             result.forEach(element => {
+//               dateRateObj.push({
+//                 date:date,
+//                 ...element,
+//                 season:'Regular',
+//               })
+//             });
+//             console.log("dateRateObj",i,dates.length)
+//             if(i == dates.length-1){
+//               console.log("in",i)
+//               res.status(200).send(dateRateObj)
+//             }
+//         })
+//       }
+//     })
+//     } 
+    
+//   } catch (error) {
+//     console.log(error);
+//   }
+//   // res.status(200).send()
+// });
 
 
 

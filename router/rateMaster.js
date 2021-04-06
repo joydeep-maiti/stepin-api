@@ -158,8 +158,9 @@ router.get("/rate", cors(), async (req, res) => {
 function daysBetweenDates(startDate, endDate) {
   let dates = [];
   const currDate = moment(startDate).startOf("day");
+  //console.log(currDate)
   const lastDate = moment(endDate).startOf("day");
-  console.log("lastDate",currDate,lastDate)
+  //console.log("lastDate",currDate,lastDate)
   while (currDate.add(1, "days").diff(lastDate) < 0) {
     dates.push(currDate.clone().toDate());
   }

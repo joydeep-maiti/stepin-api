@@ -19,7 +19,8 @@ const collections = {
   tax: "tax",
   rate:"rate",
   idproof:"idproof",
-  reporttype:"reporttype"
+  reporttype:"reporttype",
+  sequence:"sequence",
 };
 
 const mongoUrl = process.env.MONGODB_URL;

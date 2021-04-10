@@ -33,6 +33,43 @@ dataBaseConnection().then(dbs => {
       console.log(error);
     }
   });
+
+  router.post("/pos", cors(), async (req, res) => {
+    findOne(dbs, collections.pos,{bookingId: new ObjectID(req.body.bookingId)})
+    .then(result => {
+      if(result){
+        console.log(result)
+        res.status(400).json({msg:"POS already exist!"})
+      }else{
+        return findOne(dbs, collections.sequence,{name:"pos"})
+      }
+    })
+    .then(result => {
+      if(result){
+        return insertOne(dbs, collections.pos,{...req.body, bookingId: new ObjectID(req.body.bookingId), posId:"POS"+(1000000+Number(result.seq))})
+      }else{
+        res.status(401).send()
+      }
+    })
+    .then(result => {
+      if(result){
+        return updateOne(dbs, collections.sequence, {name:"pos"}, {$inc:{seq:1}})
+      }else{
+        res.status(401).send()
+      }
+    })
+    .then(result => {
+      if(result){
+        res.status(201).send()
+      }else{
+        res.status(401).send()
+      }
+    })
+    .catch((error)=>{
+      console.log(error);
+      res.status(500).send()
+    })
+  });
 })
 
 module.exports = router;

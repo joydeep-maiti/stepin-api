@@ -11,6 +11,9 @@ const dataBaseName = "hotel-booking";
 const collections = {
   room: "room",
   booking: "booking",
+  pos: "pos",
+  billing: "billing",
+  customer: "customer",
   season: "season",
   roomcategory: "roomcategory",
   tax: "tax",

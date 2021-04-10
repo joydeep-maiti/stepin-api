@@ -2,6 +2,9 @@ const http = require("http");
 const express = require("express");
 
 const bookingRouter = require("./router/booking");
+const posRouter = require("./router/pos");
+const billingRouter = require("./router/billing");
+const customerRouter = require("./router/customer");
 const roomRouter = require("./router/room");
 const taxRouter = require("./router/tax");
 const seasonRouter = require("./router/season");
@@ -29,6 +32,9 @@ app.use(function(req, res, next) {
 });
 
 app.use(bookingRouter);
+app.use(posRouter);
+app.use(billingRouter);
+app.use(customerRouter);
 app.use(roomcategoryRouter);
 app.use(roomRouter);
 app.use(taxRouter);

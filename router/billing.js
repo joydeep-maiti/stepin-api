@@ -47,7 +47,7 @@ router.post("/billing", cors(), async (req, res) => {
   })
   .then(result => {
     if(result){
-      return insertOne(dbs, collections.billing,{...req.body, bookingId: new ObjectID(req.body.bookingId), posId:"billing"+(1000000+Number(result.seq))})
+      return insertOne(dbs, collections.billing,{...req.body, bookingId: new ObjectID(req.body.bookingId), billingId:"BIL"+(1000000+Number(result.seq))})
     }else{
       res.status(401).send()
     }

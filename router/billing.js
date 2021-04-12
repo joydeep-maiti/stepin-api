@@ -33,6 +33,53 @@ dataBaseConnection().then(dbs => {
       console.log(error);
     }
   });
+
+router.post("/billing", cors(), async (req, res) => {
+  console.log("billing body",req.body)
+   findOne(dbs, collections.billing,{bookingId: new ObjectID(req.body.bookingId)})
+  .then(result => {
+    if(result){
+      console.log(result)
+      res.status(400).json({msg:"already exist!"})
+    }else{
+      return findOne(dbs, collections.sequence,{name:"billing"})
+    }
+  })
+  .then(result => {
+    if(result){
+      return insertOne(dbs, collections.billing,{...req.body, bookingId: new ObjectID(req.body.bookingId), posId:"billing"+(1000000+Number(result.seq))})
+    }else{
+      res.status(401).send()
+    }
+  })
+  .then(result => {
+    if(result){
+      return updateOne(dbs, collections.sequence, {name:"billing"}, {$inc:{seq:1}})
+    }else{
+      res.status(401).send()
+    }
+  })
+  .then(result => {
+    if(result){
+      res.status(201).send()
+    }else{
+      res.status(401).send()
+    }
+  })
+  .catch((error)=>{
+    console.log(error);
+    res.status(500).send()
+  })
+});
+  router.patch("/billing", cors(), async (req, res) => {
+    const {_id, ...body} = req.body
+    console.log("PATCH /billing", req.body,body)
+    try {
+      updateOne(dbs, collections.pos, {_id:new ObjectID(_id)}, {$set:{billing:body.billing}}).then(result => res.status(200).send());
+    } catch (error) {
+      console.log(error);
+    }
+  });
 })
 
 module.exports = router;

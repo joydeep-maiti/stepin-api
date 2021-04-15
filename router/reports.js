@@ -14,16 +14,17 @@ dataBaseConnection().then(dbs => {
     console.log("GET /dailyreport", req.query)
     var todaysDate = new Date();
    todaysDate=moment(todaysDate).toDate("day").toISOString()
+   date=todaysDate
    todaysDate=todaysDate.split('T')[0];
    todaysDate=daysBetweenTime(todaysDate)
     console.log(todaysDate)
-    var date = new Date("2021-04-12T18:30:00.000Z")
-    //d = d.split(' ')[0];
-    date=moment(date).toDate("day").toISOString()
-   date=date.split('T')[0];
-   date=daysBetweenTime(date)
+  //   var date = new Date("2021-04-12T18:30:00.000Z")
+  //   //d = d.split(' ')[0];
+  //   date=moment(date).toDate("day").toISOString()
+  //  date=date.split('T')[0];
+  //  date=daysBetweenTime(date)
    
-    console.log(date);
+  //   console.log(date);
    const rooms1=[]
     var dateReport = []
     try {
@@ -38,6 +39,7 @@ dataBaseConnection().then(dbs => {
                 )
               })
               rooms1.sort()
+              console.log(rooms1)
               var fn=""
               for(const i in rooms1){
                 //dateReport=dateReport
@@ -45,14 +47,18 @@ dataBaseConnection().then(dbs => {
                   
                  findOne(dbs, collections.booking,{
                   $and :[
-                      {$or:[
-                          {$and:[
-                              {checkIn:{$gte:date[0]}},{checkIn:{$lte : date[1]}}
-                          ]},
-                          {$and:[
-                              {checkOut:{$gte:date[0]}},{checkOut:{$lte : date[1]}}
-                          ]}
+                    {$or:[
+                      {$and:[
+                          {checkIn:{$gte:todaysDate[0]}},{checkIn:{$lte : todaysDate[1]}}
                       ]},
+                      {$and:[
+                          {checkOut:{$gte:todaysDate[0]}},{checkOut:{$lte : todaysDate[1]}}
+                      ]},
+                        {checkOut:{$gte:date}}
+                       ]},
+                    //   {$and:[
+                    //     {"status.checkedIn": true},{"status.checkedOut":false}
+                    // ]},
                       {"rooms.roomNumber":{$eq :room1}}
                   ]
               }).then((result)=>{

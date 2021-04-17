@@ -90,8 +90,8 @@ dataBaseConnection().then(dbs => {
                         arraivalDate: "",
                         departureDate: "",
                         stay: "",
-                        adults: 0,
-                        children: 0,
+                        adults:"",
+                        children: "",
                         planType: ""
                       
                       });

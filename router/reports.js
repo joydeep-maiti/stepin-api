@@ -24,7 +24,7 @@ dataBaseConnection().then(dbs => {
   //  date=date.split('T')[0];
   //  date=daysBetweenTime(date)
    
-  //   console.log(date);
+   //console.log(date);
    const rooms1=[]
     var dateReport = []
     try {
@@ -69,10 +69,12 @@ dataBaseConnection().then(dbs => {
                       dateReport.push({
                         roomNumber1 : room1,
                         guestName : (result.firstName +" "+result.lastName),
-                        pax : ("("+ result.adults+"+"+result.children+")"),
+                        pax : (result.adults+"+"+result.children),
                         arraivalDate: result.checkIn,
                         departureDate: result.checkOut,
                         stay: noOfDaysStay(result.checkIn,result.checkOut),
+                        adults: result.adults,
+                        children: result.children,
                         planType: result.planType
                       });
                       if(i == rooms1.length-1){
@@ -88,6 +90,8 @@ dataBaseConnection().then(dbs => {
                         arraivalDate: "",
                         departureDate: "",
                         stay: "",
+                        adults: 0,
+                        children: 0,
                         planType: ""
                       
                       });
@@ -112,16 +116,6 @@ dataBaseConnection().then(dbs => {
     });
 });
 
-function GetSortOrder(prop) {    
-  return function(a, b) {    
-      if (a[prop] > b[prop]) {    
-          return 1;    
-      } else if (a[prop] < b[prop]) {    
-          return -1;    
-      }    
-      return 0;    
-  } 
-}   
 
 
 dataBaseConnection().then(dbs => {
@@ -227,19 +221,29 @@ let total = 0;
   function daysBetweenDates(startDate, endDate) {
     let dates = [];
     const currDate = moment(startDate).startOf("day");
-    //console.log(currDate)
+   // console.log('currDate',currDate)
     const lastDate = moment(endDate).startOf("day");
-    //console.log("lastDate",currDate,lastDate)
+    //console.log("lastDate",lastDate)
     while (currDate.add(1, "days").diff(lastDate) < 0) {
       dates.push(currDate.clone().toDate());
     }
   
-    dates.unshift(moment(startDate).toDate());
-    // dates.push(moment(endDate).toDate());
-   console.log("No of days",dates.length)
+    //dates.unshift(moment(startDate).toDate());
+    dates.push(moment(endDate).toDate());
+    console.log('dates',dates)
   
-    return dates.length;
+    return dates;
   }
 
+  function GetSortOrder(prop) {    
+    return function(a, b) {    
+        if (a[prop] > b[prop]) {    
+            return 1;    
+        } else if (a[prop] < b[prop]) {    
+            return -1;    
+        }    
+        return 0;    
+    } 
+  } 
 
 module.exports = router;

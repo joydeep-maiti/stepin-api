@@ -56,9 +56,9 @@ dataBaseConnection().then(dbs => {
                       ]},
                         {checkOut:{$gte:date}}
                        ]},
-                    //   {$and:[
-                    //     {"status.checkedIn": true},{"status.checkedOut":false}
-                    // ]},
+                       {$and:[
+                        {"status.checkedIn": true},{"status.checkedOut":false},{"status.cancel":false}
+                    ]},
                       {"rooms.roomNumber":{$eq :room1}}
                   ]
               }).then((result)=>{
@@ -116,39 +116,106 @@ dataBaseConnection().then(dbs => {
     });
 });
 
-
-
 dataBaseConnection().then(dbs => {
-  router.get("/bookingsbydate", cors(), async (req, res) => {
-    console.log("GET /rate", req.query)
+  router.get("/monthlyreport", cors(), async (req, res) => {
+    console.log("GET /monthlyreport", req.query)
+    let reportType=req.query.reportType;
     let dates = daysBetweenDates(req.query.fromDate, req.query.toDate)
-    let dateRateObj = []
+    var monthReport = []
+    var bookingIds=[];
+    var rooms1=[];
+    var totalRooms;
     try {
-      for(const i in dates){
-        const date = dates[i].toISOString()
-        //console.log(dates.length)
-        //console.log(date)
-        findOne(dbs, collections.booking,{checkIn:{$lte: date}, checkOut:{$gte: date}})
-        .then((result)=>{
-            if(result)
+      findAll(dbs, collections.room)
+      .then((ress)=>{
+        //console.log(ress)
+        ress.forEach(element => {
+         
+          rooms1.push(
+            element.roomNumber
+          )
+        })
+        totalRooms= rooms1.length
+        console.log(rooms1.length)
+      findAll(dbs, collections.booking)
+      .then(result => {
+        result.forEach(element => {
+               
+          bookingIds.push(
+            element._id
+          )
+        })
+        console.log(bookingIds.length)
+        for(const i in bookingIds){
+          var date = dates[0].toISOString()
+          var date1=dates[dates.length-1].toISOString()
+          date= date.split('T')[0]+"T00:00:00.000Z"
+          date1=date1.split('T')[0]+"T23:59:59.999Z"
+
+          findOne(dbs,collections.booking,
+            {$and :[
+              {$or:[
+              {$and:[
+                {checkIn: {$gte:date}},{checkIn: {$lte:date1}}
+              ]},
+              {$and:[
+                {checkIn:{$lte:date}},{checkOut:{$gte:date1}}
+              ]},
+              {$and:[
+                {checkOut: {$gte:date}},{checkOut: {$lte:date1}}
+              ]}
+            ]},
+            {$and:[
+              {"status.checkedIn": true},{"status.checkedOut":false},{"status.cancel":false}
+          ]},
+              {_id:ObjectID(bookingIds[i])}
+            ]}
+            )
+          .then(ress =>{
+            if(ress)
             {
-                  dateRateObj.push({
-                    ...result
-                  })
-            }
-                //console.log("dateRateObj",i,dates.length)
-            if(i == dates.length-1){
-                  console.log("in",i)
-                  res.status(200).send(dateRateObj)
-            }
-            console.log(dateRateObj.length)
-         });
-        }}catch (error) {
+              //console.log("entered")
+            monthReport.push({
+              ...ress
+              
+            })
+            if(i == bookingIds.length-1){
+              //dateReport.sort(roomNumber1)
+              //dateReport.sort(GetSortOrder("roomNumber1"));
+              console.log("month report",monthReport.length-1)
+              console.log("monthReport Data",monthReport)
+              var monthlyReport= getReport(monthReport,dates,totalRooms);
+              res.status(200).send(monthlyReport)
+              }
+           } 
+           else{
+            if(i == bookingIds.length-1){
+              //dateReport.sort(roomNumber1)
+              //dateReport.sort(GetSortOrder("roomNumber1"));
+              console.log(totalRooms)
+             // console.log("getting results only for checki and checkout same")
+              var monthlyReport= getReport(monthReport,dates,totalRooms);
+              res.status(200).send(monthlyReport)
+              //res.status(200).send(monthReport)
+           }
+          }
+          })
+
+        }
+
+      })
+      
+      //res.status(200).send(result));
+    })
+        
+            
+          } catch (error) {
         console.log(error);
       }
       // res.status(200).send()
-    });
+  });
 });
+
 
 dataBaseConnection().then(dbs => {
   router.get("/submenu/:menu", cors(), async (req, res) => {
@@ -191,7 +258,7 @@ function daysBetweenTime(startDate) {
   const lastDate = startDate+"T23:59:59.999Z";
   dates.push(currDate);
   dates.push(lastDate);
-  console.log ("dates",dates)
+  //console.log ("dates",dates)
   return dates;
 }
 
@@ -245,5 +312,54 @@ let total = 0;
         return 0;    
     } 
   } 
+
+  function getReport(data,dates,totalRooms){ 
+    const monthlyReport=[];
+    console.log(data.length-1)
+
+    for (const i in dates){
+  let todaysDate=moment(dates[i]).toDate("day").toISOString()
+   let originalDate = todaysDate;
+   todaysDate=todaysDate.split('T')[0];
+   todaysDate=daysBetweenTime(todaysDate)
+      const date1 = todaysDate[0]
+      const date2 = todaysDate[1]
+      let occupiedRooms=0;
+      let adults=0;
+      let children=0;
+      // let startDay=date
+      for(const j in data){
+        console.log("j=",j)
+        if( ((data[j].checkOut >= date1) && (data[j].checkOut <= date2)) || ((data[j].checkIn >= date1) & (data[j].checkIn <= date2)) || ((data[j].checkIn <= originalDate) &(data[j].checkOut >= originalDate)) ){
+          occupiedRooms=occupiedRooms+1;
+          adults=adults+parseInt(data[j].adults);
+          children=children+parseInt(data[j].children);
+          }
+          console.log("datalength=",data.length)
+          if(j == data.length-1){
+            monthlyReport.push({
+            date : date1.split('T')[0],
+            TotalRooms : totalRooms, 
+            OccupiedRooms : occupiedRooms,
+            Adults : adults,
+            Children : children,
+            Pax : (adults+children),
+            OccupancyPercent : Math.floor((occupiedRooms/totalRooms)*100) + "%"
+         });
+            console.log("entered")
+          console.log("occupiedRooms",occupiedRooms)
+          console.log("adults",adults)
+          console.log("children",children)
+        }
+        
+         
+      }
+      
+
+    }
+    return monthlyReport;
+
+
+  }
 
 module.exports = router;

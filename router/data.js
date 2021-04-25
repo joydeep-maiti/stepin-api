@@ -20,6 +20,9 @@ module.exports = {
   updateOne: async (dbs, collectionName, query, newValue) => {
     return await dbs.collection(collectionName).updateOne(query, newValue);
   },
+  upSert: async (dbs, collectionName, query, newValue, upsert) => {
+    return await dbs.collection(collectionName).updateOne(query, newValue, upsert);
+  },
   deleteOne: async (dbs, collectionName, query) => {
     return await dbs.collection(collectionName).deleteOne(query);
   },

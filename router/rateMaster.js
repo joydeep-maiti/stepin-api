@@ -6,8 +6,9 @@ const router = new express.Router();
 const dataBaseConnection = require("./dataBaseConnection");
 const collections = require("../constant").collections;
 //const season=require("./season");
-const { findAll, findOne,findByMatch, insertOne, updateOne, deleteOne, findByObj } = require("./data");
+const { findAll, findOne,findByMatch, insertOne, updateOne, deleteOne, findByObj, upSert } = require("./data");
 const { ObjectID } = require("mongodb");
+const { response } = require("express");
 
 
 dataBaseConnection().then(dbs => {
@@ -63,7 +64,40 @@ router.post("/rateMaster", cors(), async (req, res) => {
       console.log(error);
       res.status(500).send()
     }
-  });
+});
+
+router.patch("/rateMaster/percentage", cors(), async (req, res) => {
+  let data=req.body;
+  data.seasonId=ObjectID(req.body.seasonId);
+  // data.seasonId=ObjectID("603b879f4de7fa001e6aeb7b");
+  const {_id, ...body} = data
+  
+  // console.log("PATCH /rateMaster/percentage", data)
+
+  let percent = data.percent
+
+  findByObj(dbs, collections.rate,{seasonId:ObjectID('603b86c34de7fa001e6aeb7a')})
+  .then(result=>{
+    let promises = []
+    result.forEach(el=>{
+      let obj = {...el}
+      delete obj._id;
+      obj.seasonId = data.seasonId;
+      obj.rate = Number(obj.rate)+ Number(obj.rate)*(Number(percent)/100);
+      obj.extraRate = Number(obj.extraRate)+ Number(obj.rate)*(Number(percent)/100);
+      obj.percent = Number(percent)
+      promises.push(upSert(dbs, collections.rate, {roomType: obj.roomType, planType: obj.planType, seasonId: obj.seasonId},{$set:obj}, {upsert:true}))
+    })
+    return Promise.all(promises)
+  })
+  .then(result=>{
+    res.status(200).send()
+  })
+  .catch((err)=>{
+    console.log(err)
+    res.status(500).send(err)
+  })
+});
 
 router.patch("/rateMaster", cors(), async (req, res) => {
     let data=req.body;

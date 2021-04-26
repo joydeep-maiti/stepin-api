@@ -18,13 +18,6 @@ dataBaseConnection().then(dbs => {
    todaysDate=todaysDate.split('T')[0];
    todaysDate=daysBetweenTime(todaysDate)
     console.log(todaysDate)
-  //   var date = new Date("2021-04-12T18:30:00.000Z")
-  //   //d = d.split(' ')[0];
-  //   date=moment(date).toDate("day").toISOString()
-  //  date=date.split('T')[0];
-  //  date=daysBetweenTime(date)
-   
-   //console.log(date);
    const rooms1=[]
     var dateReport = []
     try {
@@ -183,7 +176,7 @@ dataBaseConnection().then(dbs => {
               //dateReport.sort(roomNumber1)
               //dateReport.sort(GetSortOrder("roomNumber1"));
               console.log("month report",monthReport.length-1)
-              console.log("monthReport Data",monthReport)
+              //console.log("monthReport Data",monthReport)
               var monthlyReport= getReport(monthReport,dates,totalRooms);
               res.status(200).send(monthlyReport)
               }
@@ -215,6 +208,313 @@ dataBaseConnection().then(dbs => {
       // res.status(200).send()
   });
 });
+
+dataBaseConnection().then(dbs => {
+  router.get("/bookingreport", cors(), async (req, res) => {
+    console.log("GET /bookingreport", req.query)
+    let reportType=req.query.reportType;
+    let dates = daysBetweenDates(req.query.fromDate, req.query.toDate)
+    var monthReport = []
+    var bookingIds=[];
+    try {
+    
+      findAll(dbs, collections.booking)
+      .then(result => {
+        result.forEach(element => {
+               
+          bookingIds.push(
+            element._id
+          )
+        })
+        console.log(bookingIds.length)
+        for(const i in bookingIds){
+          if(reportType == "Daily Booking Chart"){
+            var todaysDate = new Date();
+            todaysDate=moment(todaysDate).toDate("day").toISOString()
+            date=todaysDate
+            todaysDate=todaysDate.split('T')[0];
+            todaysDate=daysBetweenTime(todaysDate)
+             console.log(todaysDate)
+             //$gte:todaysDate[0]}},{checkIn:{$lte : todaysDate[1]}}
+            findOne(dbs,collections.booking,
+              {$and :[
+                {$and:[
+                  {bookingDate: {$gte:todaysDate[0]}},{bookingDate: {$lte:todaysDate[1]}}
+                ]},
+                {_id:ObjectID(bookingIds[i])}
+              ]}
+              )
+            .then(ress =>{
+              if(ress)
+              {
+                //console.log("entered")
+              monthReport.push({
+                ...ress
+                
+              })
+              if(i == bookingIds.length-1){
+                //dateReport.sort(roomNumber1)
+                //dateReport.sort(GetSortOrder("roomNumber1"));
+                console.log(reportType )
+                console.log("month report",monthReport.length-1)
+                //console.log("monthReport Data",monthReport)
+                var bookingReport= getBookingReport(monthReport,reportType);
+                res.status(200).send(bookingReport)
+                }
+             } 
+             else{
+              if(i == bookingIds.length-1){
+                //dateReport.sort(roomNumber1)
+                //dateReport.sort(GetSortOrder("roomNumber1"));
+                //console.log(totalRooms)
+               // console.log("getting results only for checki and checkout same")
+               console.log(reportType )
+               var bookingReport= getBookingReport(monthReport,reportType);
+                res.status(200).send(bookingReport)
+                //res.status(200).send(monthReport)
+             }
+            }
+          })}
+          else if(reportType == "Confirmed Booking for"){
+            var date = req.query.forDate;
+            //date=moment(date).toDate("day").toISOString()
+            //datee=date.split('T')[0];
+            date=daysBetweenTime(date)
+             //console.log(date)
+             //$gte:todaysDate[0]}},{checkIn:{$lte : todaysDate[1]}}
+            findOne(dbs,collections.booking,
+              {$and :[
+                {$and:[
+                  {bookingDate: {$gte:date[0]}},{bookingDate: {$lte:date[1]}}
+                ]},
+                {_id:ObjectID(bookingIds[i])}
+              ]}
+              )
+            .then(ress =>{
+              if(ress)
+              {
+                //console.log("entered")
+              monthReport.push({
+                ...ress
+                
+              })
+              if(i == bookingIds.length-1){
+                //dateReport.sort(roomNumber1)
+                //dateReport.sort(GetSortOrder("roomNumber1"));
+                console.log(reportType )
+                console.log("month report",monthReport.length-1)
+                //console.log("monthReport Data",monthReport)
+                var bookingReport= getBookingReport(monthReport,reportType);
+                res.status(200).send(bookingReport)
+                }
+             } 
+             else{
+              if(i == bookingIds.length-1){
+                //dateReport.sort(roomNumber1)
+                //dateReport.sort(GetSortOrder("roomNumber1"));
+                //console.log(totalRooms)
+               // console.log("getting results only for checki and checkout same")
+               console.log(reportType )
+               var bookingReport= getBookingReport(monthReport,reportType);
+                res.status(200).send(bookingReport)
+                //res.status(200).send(monthReport)
+             }
+            }
+          })}
+          else{
+          var date = dates[0].toISOString()
+          var date1=dates[dates.length-1].toISOString()
+          date= date.split('T')[0]+"T00:00:00.000Z"
+          date1=date1.split('T')[0]+"T23:59:59.999Z"
+
+          findOne(dbs,collections.booking,
+            {$and :[
+              {$and:[
+                {bookingDate: {$gte:date}},{bookingDate: {$lte:date1}}
+              ]},
+              {_id:ObjectID(bookingIds[i])}
+            ]}
+            )
+          .then(ress =>{
+            if(ress)
+            {
+              //console.log("entered")
+            monthReport.push({
+              ...ress
+              
+            })
+            if(i == bookingIds.length-1){
+              //dateReport.sort(roomNumber1)
+              //dateReport.sort(GetSortOrder("roomNumber1"));
+              console.log(reportType )
+              console.log("month report",monthReport.length-1)
+              //console.log("monthReport Data",monthReport)
+              var bookingReport= getBookingReport(monthReport,reportType);
+              res.status(200).send(bookingReport)
+              }
+           } 
+           else{
+            if(i == bookingIds.length-1){
+              //dateReport.sort(roomNumber1)
+              //dateReport.sort(GetSortOrder("roomNumber1"));
+              //console.log(totalRooms)
+             // console.log("getting results only for checki and checkout same")
+             console.log(reportType )
+             var bookingReport= getBookingReport(monthReport,reportType);
+              res.status(200).send(bookingReport)
+              //res.status(200).send(monthReport)
+           }
+          }
+        
+          })
+        }
+        
+        }
+
+      })
+      
+      //res.status(200).send(result));
+  
+        
+            
+          } catch (error) {
+        console.log(error);
+      }
+      // res.status(200).send()
+  });
+});
+
+function getBookingReport(data,type){
+  
+var bookingreport=[]
+        for(const i in data){
+         // console.log("j=",j)
+            //console.log("datalength=",data.length)
+
+            if((type == "Monthly Booking Chart" || type == "Daily Booking Chart" || type == "Confirmed Booking for")&& data[i].status.cancel != true)
+            {
+              console.log("entered",type)
+              bookingreport.push({
+                bookingId: data[i]._id || "",
+                bookingDate: (data[i].bookingDate).split('T')[0] || "",
+                guestName: (data[i].firstName+" "+data[i].lastName) || "",
+                dateOfArrival: (data[i].checkIn).split('T')[0] || "",
+                dateOfDeparture: (data[i].checkOut).split('T')[0] || "",
+                nights: noOfDaysStay(data[i].checkIn,data[i].checkOut) || "",
+                NoofRooms: (data[i].rooms).length || "",
+                bookedBy:data[i].bookedBy || "",
+                referenceNumber: data[i].referencenumber || data[i].memberNumber || "",
+                Amount: data[i].roomCharges || "",
+                Advance: data[i].advance 
+           });
+              /*console.log("entered")
+            console.log("occupiedRooms",occupiedRooms)
+            console.log("adults",adults)
+            console.log("children",children)*/
+          }
+          if(type == "Agency Booking" && data[i].bookedBy == "Agent" && data[i].status.cancel != true)
+            {
+              console.log("entered",type)
+              
+                bookingreport.push({
+                  bookingId: data[i]._id || "",
+                  bookingDate: (data[i].bookingDate).split('T')[0] || "",
+                  guestName: (data[i].firstName+" "+data[i].lastName) || "",
+                  dateOfArrival: (data[i].checkIn).split('T')[0] || "",
+                  dateOfDeparture: (data[i].checkOut).split('T')[0] || "",
+                  nights: noOfDaysStay(data[i].checkIn,data[i].checkOut) || "",
+                  NoofRooms: (data[i].rooms).length || "",
+                  bookedBy:data[i].bookedBy || "",
+                  referenceNumber: data[i].referencenumber || data[i].memberNumber || "",
+                  Amount: data[i].roomCharges || "",
+                  Advance: data[i].advance 
+             });
+          
+          }
+          if(type == "Member Booking" && data[i].bookedBy == "Member" && data[i].status.cancel != true)
+            {
+              console.log("entered",type)
+              
+                bookingreport.push({
+                  bookingId: data[i]._id || "",
+                  bookingDate: (data[i].bookingDate).split('T')[0] || "",
+                  guestName: (data[i].firstName+" "+data[i].lastName) || "",
+                  dateOfArrival: (data[i].checkIn).split('T')[0] || "",
+                  dateOfDeparture: (data[i].checkOut).split('T')[0] || "",
+                  nights: noOfDaysStay(data[i].checkIn,data[i].checkOut) || "",
+                  NoofRooms: (data[i].rooms).length || "",
+                  bookedBy:data[i].bookedBy || "",
+                  referenceNumber: data[i].referencenumber || data[i].memberNumber || "",
+                  Amount: data[i].roomCharges || "",
+                  Advance: data[i].advance 
+             });
+          
+          }
+           if(type == "Walkin Booking" && data[i].bookedBy == "Walk In" && data[i].status.cancel != true)
+            {
+              console.log("entered",type)
+              
+              bookingreport.push({
+                bookingId: data[i]._id || "",
+                bookingDate: (data[i].bookingDate).split('T')[0] || "",
+                guestName: (data[i].firstName+" "+data[i].lastName) || "",
+                dateOfArrival: (data[i].checkIn).split('T')[0] || "",
+                dateOfDeparture: (data[i].checkOut).split('T')[0] || "",
+                nights: noOfDaysStay(data[i].checkIn,data[i].checkOut) || "",
+                NoofRooms: (data[i].rooms).length || "",
+                bookedBy:data[i].bookedBy || "",
+                referenceNumber: data[i].referencenumber || data[i].memberNumber || "",
+                Amount: data[i].roomCharges || "",
+                Advance: data[i].advance 
+           });
+          
+          }
+
+          if(type == "HeadOffice Booking" && data[i].bookedBy == "Head Office" && data[i].status.cancel != true)
+            {
+              console.log("entered",type)
+              
+              bookingreport.push({
+                bookingId: data[i]._id || "",
+                bookingDate: (data[i].bookingDate).split('T')[0] || "",
+                guestName: (data[i].firstName+" "+data[i].lastName) || "",
+                dateOfArrival: (data[i].checkIn).split('T')[0] || "",
+                dateOfDeparture: (data[i].checkOut).split('T')[0] || "",
+                nights: noOfDaysStay(data[i].checkIn,data[i].checkOut) || "",
+                NoofRooms: (data[i].rooms).length || "",
+                bookedBy:data[i].bookedBy || "",
+                referenceNumber: data[i].referencenumber || data[i].memberNumber || "",
+                Amount: data[i].roomCharges || "",
+                Advance: data[i].advance 
+           });
+          
+        }
+        if(type == "Cancelled" && data[i].status.cancel == true)
+        {
+          console.log(data[i].status.cancel == true)
+
+          console.log("entered",type)
+          bookingreport.push({
+            bookingId: data[i]._id || "",
+            bookingDate: (data[i].bookingDate).split('T')[0] || "",
+            guestName: (data[i].firstName+" "+data[i].lastName) || "",
+            dateOfArrival: (data[i].checkIn).split('T')[0] || "",
+            dateOfDeparture: (data[i].checkOut).split('T')[0] || "",
+            nights: noOfDaysStay(data[i].checkIn,data[i].checkOut) || "",
+            NoofRooms: (data[i].rooms).length || "",
+            bookedBy:data[i].bookedBy || "",
+            referenceNumber: data[i].referencenumber || data[i].memberNumber || "",
+            Amount: data[i].roomCharges || "",
+            Advance: data[i].advance 
+       });
+      }
+          if(i == data.length -1){
+          //   console.log(bookingreport.bookedBy)
+          // bookingreport.filter(result => (result.bookedBy == "Agent"))
+          return bookingreport;
+          }
+        }
+}
 
 
 dataBaseConnection().then(dbs => {
@@ -252,6 +552,7 @@ dataBaseConnection().then(dbs => {
 });
 
 function daysBetweenTime(startDate) {
+  console.log(startDate)
   let dates = [];
   const currDate = startDate+"T00:00:00.000Z";
   //console.log("currDate",currDate)
@@ -287,16 +588,26 @@ let total = 0;
 
   function daysBetweenDates(startDate, endDate) {
     let dates = [];
+    var last;
+    console.log('startDate',startDate)
+    console.log('endDate',endDate)
     const currDate = moment(startDate).startOf("day");
-   // console.log('currDate',currDate)
-    const lastDate = moment(endDate).startOf("day");
-    //console.log("lastDate",lastDate)
+   console.log('currDate',currDate)
+    const lastDate = moment(endDate).endOf("day");
+    console.log("lastDate",lastDate)
     while (currDate.add(1, "days").diff(lastDate) < 0) {
       dates.push(currDate.clone().toDate());
     }
+    //console.log('dates',Date.getDate())
   
     //dates.unshift(moment(startDate).toDate());
-    dates.push(moment(endDate).toDate());
+    dates.push(moment(lastDate).toDate());
+    //dates.push(moment(endDate).toDate());
+    //dates.push(moment(lastDate+1).toDate());
+    //console.log("")
+    //last.setDate(endDate.getDate() + 1);
+
+  //console.log("kaste",last)
     console.log('dates',dates)
   
     return dates;
@@ -329,13 +640,13 @@ let total = 0;
       let children=0;
       // let startDay=date
       for(const j in data){
-        console.log("j=",j)
+       // console.log("j=",j)
         if( ((data[j].checkOut >= date1) && (data[j].checkOut <= date2)) || ((data[j].checkIn >= date1) & (data[j].checkIn <= date2)) || ((data[j].checkIn <= originalDate) &(data[j].checkOut >= originalDate)) ){
           occupiedRooms=occupiedRooms+1;
           adults=adults+parseInt(data[j].adults);
           children=children+parseInt(data[j].children);
           }
-          console.log("datalength=",data.length)
+          //console.log("datalength=",data.length)
           if(j == data.length-1){
             monthlyReport.push({
             date : date1.split('T')[0],
@@ -346,10 +657,10 @@ let total = 0;
             Pax : (adults+children),
             OccupancyPercent : Math.floor((occupiedRooms/totalRooms)*100) + "%"
          });
-            console.log("entered")
+            /*console.log("entered")
           console.log("occupiedRooms",occupiedRooms)
           console.log("adults",adults)
-          console.log("children",children)
+          console.log("children",children)*/
         }
         
          

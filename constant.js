@@ -12,6 +12,7 @@ const collections = {
   room: "room",
   booking: "booking",
   pos: "pos",
+  advancetab:"advancetab",
   billing: "billing",
   customer: "customer",
   season: "season",

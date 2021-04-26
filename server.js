@@ -3,6 +3,7 @@ const express = require("express");
 
 const bookingRouter = require("./router/booking");
 const posRouter = require("./router/pos");
+const advanceRouter = require('./router/advanceRouter')
 const billingRouter = require("./router/billing");
 const customerRouter = require("./router/customer");
 const roomRouter = require("./router/room");
@@ -33,6 +34,7 @@ app.use(function(req, res, next) {
 
 app.use(bookingRouter);
 app.use(posRouter);
+app.use(advanceRouter);
 app.use(billingRouter);
 app.use(customerRouter);
 app.use(roomcategoryRouter);

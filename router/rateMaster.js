@@ -12,7 +12,32 @@ const { response } = require("express");
 
 
 dataBaseConnection().then(dbs => {
- 
+  
+  router.get("/rateMaster/percentage", cors(), async (req, res) => {
+    console.log("GET /rateMaster/percentage")
+
+    findAll(dbs, collections.season)
+    .then(result => {
+      if(result){
+        let promises = []
+        result.forEach(el=>{
+          promises.push(findOne(dbs, collections.rate, {seasonId:ObjectID(el._id)}))
+        })
+        return Promise.all(promises)
+      }else{
+        res.status(500).send();
+      }
+    })
+    .then(result=>{
+      // console.log(result)
+      res.status(200).send(result)
+    })
+    .catch((error)=>{
+      console.log(error);
+      res.status(500).send()
+    })
+  })
+
   router.get("/rateMaster", cors(), async (req,res) => {
       dbs.collection('rate').aggregate([
           {

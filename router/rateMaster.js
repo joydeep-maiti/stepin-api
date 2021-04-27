@@ -83,8 +83,8 @@ router.patch("/rateMaster/percentage", cors(), async (req, res) => {
       let obj = {...el}
       delete obj._id;
       obj.seasonId = data.seasonId;
-      obj.rate = Number(obj.rate)+ Number(obj.rate)*(Number(percent)/100);
-      obj.extraRate = Number(obj.extraRate)+ Number(obj.rate)*(Number(percent)/100);
+      obj.rate = Math.round(Number(obj.rate)+ Number(obj.rate)*(Number(percent)/100));
+      obj.extraRate = Math.round(Number(obj.extraRate)+ Number(obj.rate)*(Number(percent)/100));
       obj.percent = Number(percent)
       promises.push(upSert(dbs, collections.rate, {roomType: obj.roomType, planType: obj.planType, seasonId: obj.seasonId},{$set:obj}, {upsert:true}))
     })

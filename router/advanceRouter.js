@@ -36,6 +36,7 @@ dataBaseConnection().then(dbs => {
     console.log("POST/advance", req.body)
     findOne(dbs, collections.advancetab,{bookingId: new ObjectID(req.body.bookingId)})
     .then(result => {
+      console.log("Block1")
       if(result){
         console.log(result)
         res.status(400).json({msg:"Advance already exist!"})
@@ -44,6 +45,8 @@ dataBaseConnection().then(dbs => {
       }
     })
     .then(result => {
+      console.log("Block2")
+
       if(result){
         return insertOne(dbs, collections.advancetab,{...req.body, bookingId: new ObjectID(req.body.bookingId), advanceId:"ADVANCE"+(1000000+Number(result.seq))})
       }else{
@@ -51,6 +54,7 @@ dataBaseConnection().then(dbs => {
       }
     })
     .then(result => {
+      console.log("Block3")
       if(result){
         return updateOne(dbs, collections.sequence, {name:"advance"}, {$inc:{seq:1}})
       }else{
@@ -58,6 +62,7 @@ dataBaseConnection().then(dbs => {
       }
     })
     .then(result => {
+      console.log("Block4",result)
       if(result){
         res.status(201).send()
       }else{
@@ -70,11 +75,11 @@ dataBaseConnection().then(dbs => {
     })
   });
 
-  router.patch("/advance", cors(), async (req, res) => {
+  router.patch("/advance", async (req, res) => {
     const {_id, ...body} = req.body
     console.log("PATCH /advance", req.body,body)
     try {
-      updateOne(dbs, collections.advance, {_id:new ObjectID(_id)}, {$set:{advance:body.advance}}).then(result => res.status(200).send());
+      updateOne(dbs, collections.advancetab, {_id:new ObjectID(_id)}, {$set:{advance:body.advance}}).then(result => res.status(200).send());
     } catch (error) {
       console.log(error);
     }

@@ -228,7 +228,7 @@ dataBaseConnection().then(dbs => {
         })
         console.log(bookingIds.length)
         for(const i in bookingIds){
-          if(reportType == "Daily Booking Chart"){
+          if(reportType === "Daily Booking Chart"){
             var todaysDate = new Date();
             todaysDate=moment(todaysDate).toDate("day").toISOString()
             date=todaysDate
@@ -275,8 +275,8 @@ dataBaseConnection().then(dbs => {
              }
             }
           })}
-          else if(reportType == "Confirmed Booking for"){
-            var date = req.query.forDate;
+          else if(reportType === "Confirmed Booking for"){
+            var date = req.query.fromDate;
             //date=moment(date).toDate("day").toISOString()
             //datee=date.split('T')[0];
             date=daysBetweenTime(date)

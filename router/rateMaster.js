@@ -207,7 +207,7 @@ function daysBetweenDates(startDate, endDate) {
 }
 
 const updateRateByPercentage = (dbs, data, percent, res)=>{
-  findByObj(dbs, collections.rate, { seasonId: ObjectID('603b86c34de7fa001e6aeb7a') })
+  findByObj(dbs, collections.rate, { seasonId: ObjectID('5d3edc251c9d4400006bc08e') })
   .then(result => {
     let promises = []
     result.forEach(el => {

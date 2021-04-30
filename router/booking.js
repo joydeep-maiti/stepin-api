@@ -77,7 +77,11 @@ dataBaseConnection().then(dbs => {
       let {idProofImage,...booking} = req.body;
       booking["months"] = getMonths(booking.checkIn, booking.checkOut);
       booking["bookingId"] = booking.firstName + booking.lastName;
-
+      //Adding advance to advance
+      console.log("Advance value",booking["advance"])
+      let advance = [{date: booking.bookingDate,advanceP : booking.advance,modeofpayment : "Booking", reciptNumber : "Booking"}];
+      let rooms = [...booking.rooms]
+      insertOne(dbs, collections.advancetab,{advance, bookingId: new ObjectID(req.body.bookingId),guestName: `${booking.firstName} ${booking.lastName}`,rooms, advanceId:"ADVANCE"+(1000000+Number(booking.seq))})
       insertOne(dbs, collections.booking, booking)
       .then(result =>
         insertOne(dbs, collections.idproof, {

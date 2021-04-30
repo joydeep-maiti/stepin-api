@@ -228,7 +228,7 @@ dataBaseConnection().then(dbs => {
         })
         console.log(bookingIds.length)
         for(const i in bookingIds){
-          if(reportType === "Daily Booking Chart"){
+          if(reportType === "Daily Booking"){
             var todaysDate = new Date();
             todaysDate=moment(todaysDate).toDate("day").toISOString()
             date=todaysDate
@@ -391,7 +391,7 @@ var bookingreport=[]
          // console.log("j=",j)
             //console.log("datalength=",data.length)
 
-            if((type == "Monthly Booking Chart" || type == "Daily Booking Chart" || type == "Confirmed Booking for")&& data[i].status.cancel != true)
+            if((type == "Monthly Booking" || type == "Daily Booking" || type == "Confirmed Booking for")&& data[i].status.cancel != true)
             {
               console.log("entered",type)
               bookingreport.push({

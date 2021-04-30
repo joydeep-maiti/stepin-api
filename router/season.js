@@ -7,6 +7,7 @@ const dataBaseConnection = require("./dataBaseConnection");
 const collections = require("../constant").collections;
 const { findAll, findOne, insertOne, updateOne, deleteOne } = require("./data");
 const { ObjectID } = require("mongodb");
+const { updateRateByPercentage } = require("./rateMaster")
 
 dataBaseConnection().then(dbs => {
   router.get("/season", cors(), async (req, res) => {
@@ -19,7 +20,7 @@ dataBaseConnection().then(dbs => {
   });
 
   router.post("/season", cors(), async (req, res) => {
-    console.log("POST /season", req.body)
+    console.log("POST /season", req.body, req.query)
 
     try {
       let regex = new RegExp(["^", req.body.season, "$"].join(""), "i")
@@ -33,9 +34,16 @@ dataBaseConnection().then(dbs => {
           const data = req.body
           data.fromDate = req.body.fromDate;
           data.toDate = req.body.toDate;
-          // data.fromDate = moment(req.body.fromDate).startOf("date").toString();
-          // data.toDate = moment(req.body.toDate).endOf("date")._i;
-          insertOne(dbs, collections.season,data).then(result => res.status(201).send());
+          return insertOne(dbs, collections.season,data)
+        }
+      })
+      .then(result => {
+        if(req.query.copyrate == "true"){
+          console.log("result",result)
+          console.log("result",result.insertedId)
+          updateRateByPercentage(dbs, {seasonId:ObjectID(result.insertedId)}, 0, res)
+        }else{
+          res.status(201).send()
         }
       });
     } catch (error) {

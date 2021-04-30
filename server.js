@@ -42,7 +42,7 @@ app.use(roomcategoryRouter);
 app.use(roomRouter);
 app.use(taxRouter);
 app.use(seasonRouter);
-app.use(rateRouter);
+app.use(rateRouter.router);
 app.use(reportsRouter)
 app.use(posReportRouter)
 app.use(express.json());

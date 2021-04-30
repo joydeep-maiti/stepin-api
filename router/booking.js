@@ -119,12 +119,45 @@ dataBaseConnection().then(dbs => {
     }
   });
 
+  // router.get("/checkouts", cors(), async (req, res) => {
+  //   let date = new Date().toJSON().split("T")[0]
+  //   date = '2021-04-20'
+  //   console.log("/checkoutsaaa",date)
+  //   try {
+  //     findByObj(dbs, collections.billing, {checkOut:{$gte:date}}).then(result => res.status(200).send(result));
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // });
+
   router.get("/checkouts", cors(), async (req, res) => {
     let date = new Date().toJSON().split("T")[0]
     date = '2021-04-20'
     console.log("/checkouts",date)
     try {
-      findByObj(dbs, collections.billing, {checkOut:{$gte:date}}).then(result => res.status(200).send(result));
+      // findByObj(dbs, collections.billing, {checkOut:{$gte:date}})
+      dbs.collection(collections.billing).aggregate([
+        {
+          '$lookup': {
+            'from': 'booking', 
+            'localField': 'bookingId', 
+            'foreignField': '_id', 
+            'as': 'bookingDetails'
+          }
+        }, {
+          '$match': {
+            'checkOut': {
+              '$gte': date
+            }
+          }
+        }, {
+          '$unwind': {
+            'path': '$bookingDetails'
+          }
+        }
+      ]).toArray(function(err, result) {
+        res.send(result)
+       });
     } catch (error) {
       console.log(error);
     }

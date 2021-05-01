@@ -25,10 +25,14 @@ dataBaseConnection().then(dbs => {
     try {
       let regex = new RegExp(["^", req.body.season, "$"].join(""), "i")
       console.log("regex",regex)
-      findOne(dbs, collections.season,{season:{$regex:regex}})
+      let fromD = req.body.fromDate.split("T")[0]
+      let toD = req.body.toDate.split("T")[0]
+      // console.log("req.body.fromDate",fromD,toD)
+      // return
+      findOne(dbs, collections.season,{$or:[{season:{$regex:regex}},{fromDate:{$gte:fromD ,$lte:toD}},{toDate:{$gte:fromD, $lte:toD}},{fromDate:{$lte:fromD},toDate:{$gte:toD}}]})
       .then(result => {
+        console.log("result",result)
         if(result){
-          console.log(result)
           res.status(400).json({msg:"Season already exist!"})
         }else{
           const data = req.body

@@ -4,13 +4,21 @@ const cors = require("cors");
 const router = new express.Router();
 const dataBaseConnection = require("./dataBaseConnection");
 const collections = require("../constant").collections;
-const { findAll ,findOne,insertOne, updateOne, deleteOne} = require("./data")
+const { findAll,findAllAndSort, findByObj, findOne, insertOne, updateOne, deleteOne} = require("./data")
 const { ObjectID } = require("mongodb");
 
 dataBaseConnection().then(dbs => {
   router.get("/taxSlabs", cors(), async (req, res) => {
+    let type = req.query.type
     try {
-      findAll(dbs, collections.tax).then(result => res.send(result));
+      switch(type){
+        case "GST": findByObj(dbs, collections.tax, {type:'GST'}).then(result => res.send(result));
+                    break;
+        case "CITY": findByObj(dbs, collections.tax, {type:'CITY'}).then(result => res.send(result));
+                      break;
+        default : findAllAndSort(dbs, collections.tax, { type: -1 }).then(result => res.send(result));
+                      break;
+      }
     } catch (error) {
       console.log(error);
     }

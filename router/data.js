@@ -5,6 +5,13 @@ module.exports = {
       .find({})
       .toArray();
   },
+  findAllAndSort: async (dbs, collectionName, sortParam) => {
+    return await dbs
+      .collection(collectionName)
+      .find({})
+      .sort(sortParam)
+      .toArray();
+  },
   findByObj: async (dbs, collectionName, obj) => {
     return await dbs
       .collection(collectionName)

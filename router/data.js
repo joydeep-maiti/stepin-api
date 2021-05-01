@@ -26,6 +26,9 @@ module.exports = {
   deleteOne: async (dbs, collectionName, query) => {
     return await dbs.collection(collectionName).deleteOne(query);
   },
+  deleteMany: async (dbs, collectionName, query) => {
+    return await dbs.collection(collectionName).deleteMany(query);
+  },
   findByMatch: async (dbs, collectionName, filterArray) => {
     return await dbs
       .collection(collectionName)

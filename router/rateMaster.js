@@ -143,7 +143,7 @@ dataBaseConnection().then(dbs => {
                   return findByObj(dbs, collections.rate, { seasonId: ObjectID(ress._id) })
                 } else {
                   season = "Regular"
-                  return findByObj(dbs, collections.rate, { seasonId: ObjectID('603b86c34de7fa001e6aeb7a') })
+                  return findByObj(dbs, collections.rate, { seasonId: ObjectID('5d3edc251c9d4400006bc08e') })
                 }
               })
               .then((result) => {

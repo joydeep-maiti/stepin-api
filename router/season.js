@@ -5,7 +5,7 @@ const moment = require("moment")
 const router = new express.Router();
 const dataBaseConnection = require("./dataBaseConnection");
 const collections = require("../constant").collections;
-const { findAll, findOne, insertOne, updateOne, deleteOne } = require("./data");
+const { findAll, findOne, insertOne, updateOne, deleteOne, deleteMany } = require("./data");
 const { ObjectID } = require("mongodb");
 const { updateRateByPercentage } = require("./rateMaster")
 
@@ -69,8 +69,16 @@ dataBaseConnection().then(dbs => {
 
   router.delete("/season/:id", cors(), async (req, res) => {
     console.log("DELETE /season", req.params.id)
+    if(req.params.id === "5d3edc251c9d4400006bc08e" ){
+      res.status(400).json({msg:"Regular Season Can Not Be Deleted!"})
+      return
+    }
     try {
-      deleteOne(dbs, collections.season, {_id:new ObjectID(req.params.id)}).then(result => res.status(200).send());
+      deleteOne(dbs, collections.season, {_id:new ObjectID(req.params.id)})
+      .then(result => {
+        deleteMany(dbs, collections.rate, {seasonId:new ObjectID(req.params.id)})
+      })
+      .then(result => res.status(200).send());
     } catch (error) {
       console.log(error);
     }

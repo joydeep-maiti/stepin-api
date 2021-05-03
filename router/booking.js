@@ -77,7 +77,11 @@ dataBaseConnection().then(dbs => {
       let {idProofImage,...booking} = req.body;
       booking["months"] = getMonths(booking.checkIn, booking.checkOut);
       booking["bookingId"] = booking.firstName + booking.lastName;
-
+      //Adding advance to advance
+      console.log("Advance value",booking["advance"])
+      let advance = [{date: booking.bookingDate,advanceP : booking.advance,modeofpayment : "Booking", reciptNumber : "Booking"}];
+      let rooms = [...booking.rooms]
+      //insertOne(dbs, collections.advancetab,{advance, bookingId: new ObjectID(req.body._id),guestName: `${booking.firstName} ${booking.lastName}`,rooms, advanceId:"ADVANCE"+(1000000+Number(booking.seq))})
       insertOne(dbs, collections.booking, booking)
       .then(result =>
         insertOne(dbs, collections.idproof, {
@@ -85,6 +89,14 @@ dataBaseConnection().then(dbs => {
           idProofImage: idProofImage
         })
       )
+      .then(result =>
+        insertOne(dbs, collections.advancetab,{
+          bookingId: booking._id,
+           advance,
+           guestName: `${booking.firstName} ${booking.lastName}`,
+           rooms,
+           advanceId:"ADVANCE"+(1000000+Number(result.seq))})
+        )
       .then(result =>
         res.status(200).send(result)
       );
@@ -95,7 +107,11 @@ dataBaseConnection().then(dbs => {
 
   router.put("/bookings/update", cors(), async (req, res) => {
     try {
+      console.log("enterted")
       let {idProofImage,...booking} = req.body;
+      
+      let advance =  booking.advance;
+      console.log("advance",advance)
       booking["months"] = getMonths(req.body.checkIn, req.body.checkOut);
       booking["_id"] = new ObjectID(booking._id);
       updateOne(
@@ -110,7 +126,15 @@ dataBaseConnection().then(dbs => {
           { bookingId: booking._id },
           { $set: {idProofImage:idProofImage} }
         )
-      )
+      ).then(result =>
+        updateOne(
+          dbs,
+          collections.advancetab,
+          { bookingId: booking._id },
+          { $set :{advance : [{date: booking.bookingDate,advanceP : booking.advance,modeofpayment : "Booking", reciptNumber : "Booking"}]}}
+          //{ $set : {'advance[0].advanceP': advance}}
+        )
+        )
       .then(result => 
         res.status(200).send(result)
       );

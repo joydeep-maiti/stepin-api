@@ -13,6 +13,7 @@ const rateRouter=require('./router/rateMaster');
 const roomcategoryRouter = require("./router/roomCategory");
 const reportsRouter=require("./router/reports")
 const posReportRouter=require('./router/PosReport')
+const billingReportRouter = require ('./router/billingReport')
 const bodyParser = require("body-parser");
 require("./router/dataBaseConnection");
 
@@ -45,6 +46,7 @@ app.use(seasonRouter);
 app.use(rateRouter.router);
 app.use(reportsRouter)
 app.use(posReportRouter)
+app.use(billingReportRouter)
 app.use(express.json());
 
 // start the server

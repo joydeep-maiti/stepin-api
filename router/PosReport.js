@@ -59,6 +59,7 @@ dataBaseConnection().then(dbs => {
               )
               if(i == posIds.length-1){
                 var posReport= getPosReport(monthReport,date,date1,reportType);
+                posReport.sort(GetSortOrder("date"));
                 res.status(200).send(posReport)
    
               }
@@ -66,6 +67,7 @@ dataBaseConnection().then(dbs => {
            else{
             if(i == posIds.length-1){
              var posReport= getPosReport(monthReport,date,date1,reportType);
+             posReport.sort(GetSortOrder("date"));
              res.status(200).send(posReport)
 
            }
@@ -244,6 +246,16 @@ function daysBetweenTime(startDate) {
   }
 
   
+  function GetSortOrder(prop) {    
+    return function(a, b) {    
+        if (a[prop] > b[prop]) {    
+            return 1;    
+        } else if (a[prop] < b[prop]) {    
+            return -1;    
+        }    
+        return 0;    
+    } 
+  } 
 
   
 module.exports = router;

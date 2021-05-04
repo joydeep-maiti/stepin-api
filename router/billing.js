@@ -18,11 +18,25 @@ const {
 } = require("./data");
 
 dataBaseConnection().then(dbs => {
+  
   router.get("/billing", cors(), async (req, res) => {
-    try {
-      findAll(dbs, collections.billing).then(result => res.status(200).send(result));
-    } catch (error) {
-      console.log(error);
+    let date = req.query.date;
+    if(!date){
+      try {
+        findAll(dbs, collections.billing).then(result => res.status(200).send(result));
+      } catch (error) {
+        console.log(error);
+      }
+    }else {
+      let start = date+"T00:00:00.000Z"
+      let end = date+"T23:59:59.999Z"
+      console.log("start",start)
+      console.log("end",end)
+      try {
+        findByObj(dbs, collections.billing, {checkOut:{$gte:start, $lte:end}}).then(result => res.status(200).send(result));
+      } catch (error) {
+        console.log(error);
+      }
     }
   });
 

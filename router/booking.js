@@ -156,7 +156,7 @@ dataBaseConnection().then(dbs => {
 
   router.get("/checkouts", cors(), async (req, res) => {
     let date = new Date().toJSON().split("T")[0]
-    date = '2021-04-20'
+    // date = '2021-04-20'
     console.log("/checkouts",date)
     try {
       // findByObj(dbs, collections.billing, {checkOut:{$gte:date}})

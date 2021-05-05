@@ -19,9 +19,9 @@ dataBaseConnection().then(dbs => {
     var rooms=[]
     try {
     
-      findAll(dbs, collections.billing)
-      .then(result => {
-        result.forEach(element => {
+      await findAll(dbs, collections.billing)
+      .then(async (result) => {
+        await result.forEach(element => {
               
             //console.log(element.pos.Food[0].date)
           billingIds.push(
@@ -35,7 +35,7 @@ dataBaseConnection().then(dbs => {
           date= date.split('T')[0]+"T00:00:00.000Z"
           date1=date1.split('T')[0]+"T23:59:59.999Z"
 
-          findOne(dbs,collections.billing,
+          await findOne(dbs,collections.billing,
             {$and :[
                 {$and:[
                   {checkOut: {$gte:date}},{checkOut: {$lte:date1}}
@@ -43,18 +43,18 @@ dataBaseConnection().then(dbs => {
                 {_id:ObjectID(billingIds[i])}
               ]}
               )
-          .then(ress =>{
+          .then(async (ress) =>{
             if(ress)
             {
                 //console.log("entereed")
-              monthReport.push(
+              await monthReport.push(
                {
                  ...ress
                }
                 
               )
               if(i == billingIds.length-1){
-                var billingReport= getBillingReport(monthReport,reportType);
+                var billingReport= await (getBillingReport(monthReport,reportType));
                 billingReport.sort(GetSortOrder("billingDate"));
                 res.status(200).send(billingReport)
    
@@ -62,7 +62,7 @@ dataBaseConnection().then(dbs => {
            } 
            else{
             if(i == billingIds.length-1){
-             var billingReport= getBillingReport(monthReport,reportType);
+             var billingReport=await (getBillingReport(monthReport,reportType));
              billingReport.sort(GetSortOrder("billingDate"));
              res.status(200).send(billingReport)
 

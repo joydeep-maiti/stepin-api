@@ -14,6 +14,7 @@ const roomcategoryRouter = require("./router/roomCategory");
 const reportsRouter=require("./router/reports")
 const posReportRouter=require('./router/PosReport')
 const billingReportRouter = require ('./router/billingReport')
+const guestreportRouter =  require('./router/guest');
 const bodyParser = require("body-parser");
 require("./router/dataBaseConnection");
 
@@ -47,6 +48,7 @@ app.use(rateRouter.router);
 app.use(reportsRouter)
 app.use(posReportRouter)
 app.use(billingReportRouter)
+app.use(guestreportRouter)
 app.use(express.json());
 
 // start the server

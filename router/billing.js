@@ -89,7 +89,7 @@ router.post("/billing", cors(), async (req, res) => {
     const {_id, ...body} = req.body
     console.log("PATCH /billing", req.body,body)
     try {
-      updateOne(dbs, collections.pos, {_id:new ObjectID(_id)}, {$set:{billing:body.billing}}).then(result => res.status(200).send());
+      updateOne(dbs, collections.billing, {_id:new ObjectID(_id)}, {$set:{paymentData:body.paymentData}}).then(result => res.status(200).send());
     } catch (error) {
       console.log(error);
     }

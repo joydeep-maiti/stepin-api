@@ -105,6 +105,7 @@ var posreport=[]
           if(data[i].pos.Food[j].date >= date1 && data[i].pos.Food[j].date <= date2)
           posreport.push({
             date:data[i].pos.Food[j].date.split('T')[0],
+            guestName: data[i].guestName,
             roomNo:data[i].rooms[0].roomNumber,
             amount : data[i].pos.Food[j].amount,
             remarks: data[i].pos.Food[j].remarks
@@ -123,6 +124,7 @@ var posreport=[]
         if(data[i].pos.Transport[j].date >= date1 && data[i].pos.Transport[j].date <= date2)
         posreport.push({
           date:data[i].pos.Transport[j].date.split('T')[0],
+          guestName: data[i].guestName,
           roomNo:data[i].rooms[0].roomNumber,
           amount : data[i].pos.Transport[j].amount,
           remarks: data[i].pos.Transport[j].remarks
@@ -141,6 +143,7 @@ var posreport=[]
       if(data[i].pos.Laundary[j].date >= date1 && data[i].pos.Laundary[j].date <= date2)
       posreport.push({
         date:data[i].pos.Laundary[j].date.split('T')[0],
+        guestName: data[i].guestName,
         roomNo:data[i].rooms[0].roomNumber,
         amount : data[i].pos.Laundary[j].amount,
         remarks: data[i].pos.Laundary[j].remarks
@@ -160,6 +163,7 @@ var posreport=[]
     if(data[i].pos.Agent[j].date >= date1 && data[i].pos.Agent[j].date <= date2)
     posreport.push({
       date:data[i].pos.Agent[j].date.split('T')[0],
+      guestName: data[i].guestName,
       roomNo:data[i].rooms[0].roomNumber,
       amount : data[i].pos.Agent[j].amount,
       remarks: data[i].pos.Agent[j].remarks
@@ -179,6 +183,7 @@ var posreport=[]
   if(data[i].pos.Others[j].date >= date1 && data[i].pos.Others[j].date <= date2)
   posreport.push({
     date:data[i].pos.Others[j].date.split('T')[0],
+    guestName: data[i].guestName,
     roomNo:data[i].rooms[0].roomNumber,
     amount : data[i].pos.Others[j].amount,
     remarks: data[i].pos.Others[j].remarks

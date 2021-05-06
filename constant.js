@@ -21,6 +21,7 @@ const collections = {
   rate:"rate",
   idproof:"idproof",
   reporttype:"reporttype",
+  propertyDetails:"propertyDetails",
   sequence:"sequence",
 };
 

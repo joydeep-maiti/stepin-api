@@ -10,7 +10,103 @@ const { ObjectID} = require("mongodb");
 
 
 dataBaseConnection().then(dbs => {
+
   router.get("/billingReport", cors(), async (req, res) => {
+    console.log("GET /billingReport", req.query)
+    let reportType=req.query.reportType;
+    let dates = daysBetweenDates(req.query.fromDate, req.query.toDate)
+    var monthReport = []
+    var billingIds=[];
+    const promises = []
+    try {
+      promises.push(
+      new Promise((resolve, reject) => {
+
+      findAll(dbs, collections.billing)
+      .then( (result) => {
+         result.forEach(element => {
+              
+            //console.log(element.pos.Food[0].date)
+          billingIds.push(
+            element._id
+          )
+        })
+        for(const i in billingIds){ 
+          var date = dates[0].toISOString()
+          var date1=dates[dates.length-1].toISOString()
+          date= date.split('T')[0]+"T00:00:00.000Z"
+          date1=date1.split('T')[0]+"T23:59:59.999Z"
+        
+            
+          findOne(dbs,collections.billing,
+            {$and :[
+                {$and:[
+                  {checkOut: {$gte:date}},{checkOut: {$lte:date1}}
+                ]},
+                {_id:ObjectID(billingIds[i])}
+              ]}
+              )
+          .then( (ress) =>{
+            if(ress)
+            {
+                //console.log("entereed")
+               monthReport.push(
+               {
+                 ...ress
+               }
+                
+              )
+              if(i == billingIds.length-1){
+                var billingReport=  (getBillingReport(monthReport,reportType));
+                billingReport.sort(GetSortOrder("billingDate"));
+                console.log(billingReport)
+                resolve(billingReport)
+                //res.status(200).send(billingReport)
+   
+              }
+           } 
+           else{
+            if(i == billingIds.length-1){
+             var billingReport= (getBillingReport(monthReport,reportType));
+             billingReport.sort(GetSortOrder("billingDate"));
+             console.log(billingReport)
+             resolve(billingReport)
+             console.log("promises",promises)
+             //res.status(200).send(billingReport)
+
+           }
+          }
+          }).catch((err) => {
+            reject("Rejected for " + date + " " + err)
+          })
+      }
+    })
+  }))
+      Promise.all(promises)
+        .then(result => {
+          const report = []
+          result.map(el => {
+            report.push(...el)
+          })
+          console.log("RESULT", report)
+          res.status(200).send(report)
+        })
+        .catch(() => {
+          res.status(500).send()
+        })
+      //})
+    }
+    catch (error) {
+      console.log(error);
+    }
+  });
+    // res.status(200).send()
+  
+
+
+/*
+
+  router.get("/billingReport1", cors(), async (req, res) => {
     console.log("GET /Billingreport", req.query)
     let reportType=req.query.reportType;
     let dates = daysBetweenDates(req.query.fromDate, req.query.toDate)
@@ -19,9 +115,9 @@ dataBaseConnection().then(dbs => {
     var rooms=[]
     try {
     
-      await findAll(dbs, collections.billing)
-      .then(async (result) => {
-        await result.forEach(element => {
+      findAll(dbs, collections.billing)
+      .then( (result) => {
+         result.forEach(element => {
               
             //console.log(element.pos.Food[0].date)
           billingIds.push(
@@ -35,7 +131,7 @@ dataBaseConnection().then(dbs => {
           date= date.split('T')[0]+"T00:00:00.000Z"
           date1=date1.split('T')[0]+"T23:59:59.999Z"
 
-          await findOne(dbs,collections.billing,
+           findOne(dbs,collections.billing,
             {$and :[
                 {$and:[
                   {checkOut: {$gte:date}},{checkOut: {$lte:date1}}
@@ -43,18 +139,18 @@ dataBaseConnection().then(dbs => {
                 {_id:ObjectID(billingIds[i])}
               ]}
               )
-          .then(async (ress) =>{
+          .then( (ress) =>{
             if(ress)
             {
                 //console.log("entereed")
-              await monthReport.push(
+               monthReport.push(
                {
                  ...ress
                }
                 
               )
               if(i == billingIds.length-1){
-                var billingReport= await (getBillingReport(monthReport,reportType));
+                var billingReport=  (getBillingReport(monthReport,reportType));
                 billingReport.sort(GetSortOrder("billingDate"));
                 res.status(200).send(billingReport)
    
@@ -62,7 +158,7 @@ dataBaseConnection().then(dbs => {
            } 
            else{
             if(i == billingIds.length-1){
-             var billingReport=await (getBillingReport(monthReport,reportType));
+             var billingReport= (getBillingReport(monthReport,reportType));
              billingReport.sort(GetSortOrder("billingDate"));
              res.status(200).send(billingReport)
 
@@ -81,6 +177,7 @@ dataBaseConnection().then(dbs => {
       }
       // res.status(200).send()
   });
+ */
 });
 
 function getBillingReport(data,type){
@@ -104,9 +201,9 @@ var billingreport=[]
                 billNo : data[i].billingId,
                 name : data[i].guestName || "",
                 billingDate : data[i].checkOut.split('T')[0],
-                roomrate : parseFloat(data[i].totalAmount) ,
+                roomrate : parseFloat(data[i].roomCharges) ,
                 //totalAmount : parseFloat(data[i].totalAmount),
-                boardingDate : data[i].checkIn.split('T')[0] ,
+                boardingDate : "" ,
                 //discount : parseFloat(data[i].discount || 0.00),
                  // cash : parseFloat(data[i].paymentData.cash || 0.00 ),
                 // card : parseFloat(data[i].paymentData.card || 0.00),
@@ -135,8 +232,8 @@ var billingreport=[]
               billNo : data[i].billingId,
               name : data[i].guestName || "",
               billingDate : data[i].checkOut.split('T')[0],
-              roomrate : parseFloat(data[i].totalAmount) ,
-              boardingDate : data[i].checkIn.split('T')[0] ,
+              roomrate : parseFloat(data[i].roomCharges) ,
+              boardingDate : "" ,
              tax : parseFloat(data[i].paymentData.tax || 0.00 ),
              food : getPos(data[i],"Food") || "",
               transport : getPos(data[i],"Transport") || "",
@@ -162,9 +259,9 @@ var billingreport=[]
                   billNo : data[i].billingId,
                   name : data[i].guestName || "",
                   billingDate : data[i].checkOut.split('T')[0],
-                  roomrate : parseFloat(data[i].totalAmount) ,
+                  roomrate : parseFloat(data[i].roomCharges) ,
                   //totalAmount : parseFloat(data[i].totalAmount),
-                  boardingDate : data[i].checkIn.split('T')[0] ,
+                  boardingDate : "" ,
                  tax : parseFloat(data[i].paymentData.tax || 0.00 ),
                  food : getPos(data[i],"Food") || "",
                   transport : getPos(data[i],"Transport") || "",
@@ -187,8 +284,8 @@ var billingreport=[]
                       billNo : data[i].billingId,
                       name : data[i].guestName || "",
                       billingDate : data[i].checkOut.split('T')[0],
-                      roomrate : parseFloat(data[i].totalAmount) ,
-                      boardingDate : data[i].checkIn.split('T')[0] ,
+                      roomrate : parseFloat(data[i].roomCharges) ,
+                      boardingDate : "" ,
                      tax : parseFloat(data[i].paymentData.tax || 0.00 ),
                      food : getPos(data[i],"Food") || "",
                       transport : getPos(data[i],"Transport") || "",

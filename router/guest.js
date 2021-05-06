@@ -127,8 +127,6 @@ function getGuestReport(data,type){
     if(type == "Guest" && data[i].nationality === "Indian"){
       console.log("Guest Type",type);
         guestreport.push({
-        bookingId: data[i]._id || "",
-        bookingDate: (data[i].bookingDate) || "",
         checkIn: (data[i].checkIn) || "",
         checkOut: (data[i].checkOut) || "",
         guestName: (data[i].firstName+" "+data[i].lastName) || "",
@@ -137,7 +135,8 @@ function getGuestReport(data,type){
         bookedBy:data[i].bookedBy || "",
         referenceNumber: data[i].referencenumber || data[i].memberNumber || "",
         Amount: data[i].roomCharges || "",
-        Advance: data[i].advance 
+        Advance: data[i].advance || "",
+        Balance:(data[i].roomCharges)-(data[i].advance)
        
    });
     }
@@ -145,18 +144,18 @@ function getGuestReport(data,type){
     if(type == "Foreign Guest" && (data[i].nationality === "British"  || data[i].nationality === "American" || data[i].nationality === "Australian" || data[i].nationality === "Japan" || data[i].nationality === "Saudi Arab" || data[i].nationality === "UAE" || data[i].nationality === "Africa" || data[i].nationality === "French") ){
       console.log("Guest Type",type);
         guestreport.push({
-        bookingId: data[i]._id || "",
-        bookingDate: (data[i].bookingDate) || "",
         checkIn: (data[i].checkIn) || "",
         checkOut: (data[i].checkOut) || "",
         checkOut: (data[i].checkOut).split('T')[0],
         guestName: (data[i].firstName+" "+data[i].lastName) || "",
         nationality:(data[i].nationality) || "",
+        PassportNumber:(data[i].Idproof)||"",
         NoofRooms: (data[i].rooms).length || "",
         bookedBy:data[i].bookedBy || "",
         referenceNumber: data[i].referencenumber || data[i].memberNumber || "",
         Amount: data[i].roomCharges || "",
-        Advance: data[i].advance 
+        Advance: data[i].advance || "",
+        Balance:(data[i].roomCharges)-(data[i].advance)
        
    });
     }

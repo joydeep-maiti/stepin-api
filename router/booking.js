@@ -34,6 +34,32 @@ dataBaseConnection().then(dbs => {
     }
   });
 
+  router.get("/bookings/dayCheckin", cors(), async (req, res) => {
+    console.log(req.query.date)
+    let nulls = ["null","undefined", null, undefined]
+    let date = req.query.date && !nulls.includes(req.query.date)? new Date(req.query.date).toISOString(): new Date().toISOString()
+    let start = date.split("T")[0]+"T00:00:00.000Z"
+    let end = date.split("T")[0]+"T23:59:59.999Z"
+    try {
+      const filter = {
+        'checkIn': {
+          '$lte': end
+        }, 
+        'checkOut': {
+          '$gte': start
+        }, 
+        'status.checkedIn': true, 
+        'status.checkedOut': false
+      }
+
+      findByObj(dbs, collections.booking, filter).then(result => {
+        res.send(result);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
   router.post("/bookings/filterByMonth", cors(), async (req, res) => {
     try {
       const filter = {

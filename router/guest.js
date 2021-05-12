@@ -5,7 +5,7 @@ const moment = require("moment")
 const router = new express.Router();
 const dataBaseConnection = require("./dataBaseConnection");
 const collections = require("../constant").collections;
-const { findAll, findOne,findByObj} = require("./data");
+const { findAll, findOne,findByObj,findByObj1} = require("./data");
 const { ObjectID} = require("mongodb");
 
 dataBaseConnection().then(dbs=>{
@@ -14,12 +14,8 @@ dataBaseConnection().then(dbs=>{
         let bookingids =[]
         let report =[]
         let reportType = req.query.reportType;
-        // let dates = daysBetweenDates(req.query.fromDate, req.query.toDate)
-        // var date = dates[0].toISOString()
-        // var date1=dates[dates.length-1].toISOString()
-        // date= date.split('T')[0]+"T00:00:00.000Z"
-        // date1=date1.split('T')[0]+"T23:59:59.999Z"
-
+        var br = "Japan";
+        var UAe = "UAE";
 
         date= req.query.fromDate+"T00:00:00.000Z"
         date1=req.query.toDate+"T23:59:59.999Z"
@@ -28,8 +24,8 @@ dataBaseConnection().then(dbs=>{
 
         try{
           if(reportType == "Guest"){
-            findByObj(dbs, collections.booking , 
-              {checkIn:{$gte:date, $lte:date1},'status.checkedIn':true,nationality:'Indian'})
+            findByObj1(dbs, collections.booking , 
+              {checkIn:{$gte:date, $lte:date1},'status.checkedIn':true,nationality:'Indian'},{checkIn:1})
             .then(result =>{
               var report = getGuestReport(result , reportType);
               res.send(report)
@@ -37,10 +33,11 @@ dataBaseConnection().then(dbs=>{
             
             })
           }else if(reportType == "Foreign Guest"){
-            findByObj(dbs, collections.booking , 
-              {$and:[
-                          {checkIn: {$gte:date}},{checkOut: {$lte:date1}},
-                        ]})
+            findByObj1(dbs, collections.booking , 
+             
+              {checkIn:{$gte:date, $lte:date1},'status.checkedIn':true,$or:[
+                {nationality:"UAE"} , {nationality:"Japan"},{nationality:"British"},{nationality:"American"},{nationality:"Australian"},{nationality:"Saudi Arab"},{nationality:"Africa"},{nationality:"French"}
+              ]},{checkIn:1})
             .then(result =>{
               var report = getGuestReport(result , reportType);
               res.send(report)
@@ -75,10 +72,15 @@ function getGuestReport(data,type){
         referenceNumber: data[i].referencenumber || data[i].memberNumber || "",
         Amount: data[i].roomCharges || "",
         Advance: data[i].advance || "",
-        Balance:(data[i].roomCharges)-(data[i].advance)
+        Balance:(data[i].roomCharges)-(data[i].advance),
+      
        
    });
+   
+   console.log(guestreport)
     }
+    var mysort = {$sort:{checkIn:-1}}
+    console.log(mysort)
   
     if(type == "Foreign Guest" && (data[i].nationality === "British"  || data[i].nationality === "American" || data[i].nationality === "Australian" || data[i].nationality === "Japan" || data[i].nationality === "Saudi Arab" || data[i].nationality === "UAE" || data[i].nationality === "Africa" || data[i].nationality === "French") ){
       console.log("Guest Type",type);
@@ -105,31 +107,7 @@ function getGuestReport(data,type){
   return guestreport;``
 }
 
-function daysBetweenDates(startDate, endDate) {
-    let dates = [];
-    console.log('startDate',startDate)
-    console.log('endDate',endDate)
-    const currDate = moment(startDate).startOf("day");
-   console.log('currDate',currDate)
-    const lastDate = moment(endDate).endOf("day");
-    console.log("lastDate",lastDate)
-    while (currDate.add(1, "days").diff(lastDate) < 0) {
-      dates.push(currDate.clone().toDate());
-    }
-    //console.log('dates',Date.getDate())
-  
-    //dates.unshift(moment(startDate).toDate());
-    dates.push(moment(lastDate).toDate());
-    //dates.push(moment(endDate).toDate());
-    //dates.push(moment(lastDate+1).toDate());
-    //console.log("")
-    //last.setDate(endDate.getDate() + 1);
 
-  //console.log("kaste",last)
-    console.log('dates',dates)
-  
-    return dates;
-  }
 
 module.exports = router;
 

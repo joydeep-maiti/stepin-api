@@ -18,6 +18,13 @@ module.exports = {
       .find(obj)
       .toArray();
   },
+  findByObj1: async (dbs, collectionName, obj,sortParam) => {
+    return await dbs
+      .collection(collectionName)
+      .find(obj)
+      .sort(sortParam)
+      .toArray();
+  },
   insertOne: async (dbs, collectionName, obj) => {
     return await dbs.collection(collectionName).insertOne(obj);
   },

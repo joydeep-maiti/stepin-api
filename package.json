@@ -8,7 +8,7 @@
   "homepage": "https://prakulkumar.github.io/booking/",
   "main": "constant.js",
   "dependencies": {
-    "axios": "^0.19.0",
+    "axios": "^0.19.2",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "date-fns": "^2.0.1",

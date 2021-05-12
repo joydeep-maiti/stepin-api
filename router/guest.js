@@ -5,7 +5,7 @@ const moment = require("moment")
 const router = new express.Router();
 const dataBaseConnection = require("./dataBaseConnection");
 const collections = require("../constant").collections;
-const { findAll, findOne,} = require("./data");
+const { findAll, findOne,findByObj} = require("./data");
 const { ObjectID} = require("mongodb");
 
 dataBaseConnection().then(dbs=>{
@@ -21,100 +21,38 @@ dataBaseConnection().then(dbs=>{
         date1=date1.split('T')[0]+"T23:59:59.999Z"
        
         
-        console.log(date , date1);
+        console.log("dates are:",date , date1);
 
         try{
-
-            findAll(dbs, collections.booking)
+          if(reportType == "Guest"){
+            findByObj(dbs, collections.booking , 
+              {$and:[
+                {checkIn: {$gte:date}},{checkOut: {$lte:date1}},
+              ]})
             .then(result =>{
-                result.forEach(element =>{
-                    bookingids.push(element._id);
-                })
-            console.log(bookingids.length); 
-            for(const i in bookingids){
-              if(reportType === "Guest"){
-                findOne(dbs,collections.booking,
-                  {$and:[
-                    {$and:[
-                      {checkIn: {$gte:date}},{checkOut: {$lte:date1}},
-                    ]},
-                    {_id:ObjectID(bookingids[i])}
-                    
-                  ]}
-                  ).
-                  then(ress =>{
-                    if(ress)
-                    {
-                    report.push({
-                      ...ress
-                    }) 
-                    if(i == bookingids.length-1){
-                      console.log("Hello")
-                      console.log(report.length)
-                    var guestReport= getGuestReport(report,reportType);
-                      res.status(200).send(guestReport);
-                     // console.log("Details:",guestReport,nationality)
-                    
-                    }
-                    
-                    }else{
-                      if(i == bookingids.length-1){
-                        console.log("Hello")
-                        console.log(report.length)
-                      var guestReport= getGuestReport(report,reportType);
-                        res.status(200).send(guestReport);
-                       // console.log("Details:",guestReport,nationality)
-                      
-                      }
-                    }
-                    //res.send(result);
-                  })
-              
-                }
-                 if (reportType === "Foreign Guest"){
-                  // console.log("Hello")
-                  findOne(dbs,collections.booking,
-                    {$and:[
-                      {$and:[
-                        {checkIn: {$gte:date}},{checkOut: {$lte:date1}},
-                      ]},
-                      {_id:ObjectID(bookingids[i])}
-                      
-                    ]}
-                    ).
-                    then(ress =>{
-                      if(ress)
-                      {
-                      report.push({
-                        ...ress
-                      }) 
-                      if(i == bookingids.length-1){
-                        console.log("others")
-                      var guestReport= getGuestReport(report,reportType);
-                      console.log(guestReport);
-                        res.status(200).send(guestReport);
-                       // console.log("Details:",guestReport,nationality)
-                      
-                      }
-                      }else{
-                        if(i == bookingids.length-1){
-                          console.log("Hello")
-                          console.log(report.length)
-                        var guestReport= getGuestReport(report,reportType);
-                          res.status(200).send(guestReport);
-                         // console.log("Details:",guestReport,nationality)
-                        
-                        }
-                      }
-                      //res.send(result);
-                    })
-                
-
-                 }
-            }
+              var report = getGuestReport(result , reportType);
+              res.send(report)
+            console.log(report , report.length); 
+            
             })
+          }else if(reportType == "Foreign Guest"){
+            findByObj(dbs, collections.booking , 
+              {$and:[
+                          {checkIn: {$gte:date}},{checkOut: {$lte:date1}},
+                        ]})
+            .then(result =>{
+              var report = getGuestReport(result , reportType);
+              res.send(report)
+            console.log(report , report.length); 
+            
+            })
+            
+          }
+
+         
            
         }catch(error){
+          console.log(error)
 
         }
     })

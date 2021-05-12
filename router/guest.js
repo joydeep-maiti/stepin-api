@@ -10,29 +10,30 @@ const { ObjectID} = require("mongodb");
 
 dataBaseConnection().then(dbs=>{
     router.get("/guestReport",cors(),async(req,res)=>{
-        console.log("GET /posreport", req.query);
+        console.log("GET /guestReport", req.query);
         let bookingids =[]
         let report =[]
         let reportType = req.query.reportType;
-        let dates = daysBetweenDates(req.query.fromDate, req.query.toDate)
-        var date = dates[0].toISOString()
-        var date1=dates[dates.length-1].toISOString()
-        date= date.split('T')[0]+"T00:00:00.000Z"
-        date1=date1.split('T')[0]+"T23:59:59.999Z"
-       
+        // let dates = daysBetweenDates(req.query.fromDate, req.query.toDate)
+        // var date = dates[0].toISOString()
+        // var date1=dates[dates.length-1].toISOString()
+        // date= date.split('T')[0]+"T00:00:00.000Z"
+        // date1=date1.split('T')[0]+"T23:59:59.999Z"
+
+
+        date= req.query.fromDate+"T00:00:00.000Z"
+        date1=req.query.toDate+"T23:59:59.999Z"
         
         console.log("dates are:",date , date1);
 
         try{
           if(reportType == "Guest"){
             findByObj(dbs, collections.booking , 
-              {$and:[
-                {checkIn: {$gte:date}},{checkOut: {$lte:date1}},
-              ]})
+              {checkIn:{$gte:date, $lte:date1},'status.checkedIn':true,nationality:'Indian'})
             .then(result =>{
               var report = getGuestReport(result , reportType);
               res.send(report)
-            console.log(report , report.length); 
+            // console.log(report , report.length); 
             
             })
           }else if(reportType == "Foreign Guest"){

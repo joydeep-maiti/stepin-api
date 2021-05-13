@@ -17,6 +17,7 @@ const billingReportRouter = require ('./router/billingReport')
 const guestreportRouter =  require('./router/guest');
 const propertyDetailsRouter = require('./router/propertyDetails')
 const search = require('./router/search');
+const printbill = require('./router/printBill')
 const bodyParser = require("body-parser");
 require("./router/dataBaseConnection");
 
@@ -53,6 +54,7 @@ app.use(billingReportRouter)
 app.use(guestreportRouter)
 app.use(propertyDetailsRouter)
 app.use(search);
+app.use(printbill);
 app.use(express.json());
 
 // start the server

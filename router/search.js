@@ -6,7 +6,7 @@ const moment = require("moment")
 const router = new express.Router();
 const dataBaseConnection = require("./dataBaseConnection");
 const collections = require("../constant").collections;
-const { findAll, findOne, } = require("./data");
+const { findAll, findOne, findByObj} = require("./data");
 const { ObjectID, Db } = require("mongodb");
 const { response } = require("express");
 
@@ -16,7 +16,18 @@ dataBaseConnection().then(dbs => {
     console.log("GET /search/booking", req.query);
     let nulls = ["null","undefined", null, undefined]
     let param = req.query.search
-    if(param && !nulls.includes(param)){
+    if(req.query.checkin && !nulls.includes(req.query.checkin)){
+      let date =new Date(req.query.checkin) ;
+      console.log("date",date)
+      if(date == "Invalid Date"){
+        res.status(400).send()
+      }else{
+        date = date.toISOString()
+        let start = date.split("T")[0]+"T00:00:00.000Z"
+        let end = date.split("T")[0]+"T23:59:59.999Z"
+        getCheckinForDate(dbs,res, start, end)
+      }
+    }else if(param && !nulls.includes(param)){
       guestSearch(dbs,res, param)
     }else {
       res.status(400).send()
@@ -157,6 +168,26 @@ const guestSearch = (dbs,res,param)=>{
     console.log(err)
     res.status(500).send()
   })
+}
+
+const getCheckinForDate = (dbs,res, start, end)=>{
+  try {
+    const filter = {
+      'checkIn': {
+        '$lte': end
+      }, 
+      'checkIn': {
+        '$gte': start
+      }, 
+      'status.checkedIn': true
+    }
+
+    findByObj(dbs, collections.booking, filter).then(result => {
+      res.send(result);
+    });
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 module.exports = router;

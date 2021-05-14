@@ -161,6 +161,10 @@ const guestSearch = (dbs,res,param)=>{
         'foreignField': 'bookingId', 
         'as': 'bill'
       }
+    }, {
+      '$sort': {
+        'checkIn': -1
+      }
     }
   ]).toArray(function (err, result) {
     if(result)

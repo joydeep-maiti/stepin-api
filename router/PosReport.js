@@ -101,11 +101,11 @@ dataBaseConnection().then(dbs =>{
            
           .then(result =>{
             
-            console.log(result , result.length)
+            //console.log(result , result.length)
             ///res.send(result)
-           var report = getPosReport(result ,date ,date1, reportType);
+           var report = getPosReport(result ,date,date1,reportType);
             res.send(report)
-          //  console.log(report.length); 
+            console.log(report.length); 
           
           })
           
@@ -220,7 +220,6 @@ function getPosReport(data ,date1,date2, type){
   }
   posreport1=posreport;
 }
-
 if((type == "All POS")  &&(data[i].pos.Others || data[i].pos.Food || data[i].pos.Transport || data[i].pos.Laundary || data[i].pos.Agent) ){
   //   console.log("entered Agent")
   // console.log(data[i].pos.Others)
@@ -235,13 +234,14 @@ if((type == "All POS")  &&(data[i].pos.Others || data[i].pos.Food || data[i].pos
       posreport.push({
         guestName: (data[i].guestName) || "",
        date:(sam[j].date) || "",
-        Food:(data[i].pos.Food[j].amount || 0) ,
+       //Food:data[i].sam[j].Food,
+        Food:getPos(data[i].pos.Food,"Food") ,
         Transport:getPos(data[i].pos.Transport,"Transport"),
          Laundary:getPos(data[i].pos.Laundary,"Laundary"),
          Agent:getPos(data[i].pos.Agent,"Agent") || "",
          Others:getPos(data[i].pos.Others,"Others") || "",
-        //Total:Food + Transport + Laundary + Agent + Others
-        })
+          }
+        )
      
      //console.log("date",sam[j].date);
      
@@ -251,10 +251,12 @@ if((type == "All POS")  &&(data[i].pos.Others || data[i].pos.Food || data[i].pos
   posreport1=posreport;
 }
 
+
   }
 
   return posreport1
 }
+
 function getPos(data, type){
   let amount = "";
   if(data == undefined){
@@ -264,7 +266,7 @@ function getPos(data, type){
       amount = data[i].amount
       console.log("ouput",data[i].amount);
     }
-    
+    console.log(amount)
     return amount;
   }
 }

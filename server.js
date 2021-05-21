@@ -18,6 +18,7 @@ const guestreportRouter =  require('./router/guest');
 const propertyDetailsRouter = require('./router/propertyDetails')
 const search = require('./router/search');
 const printbill = require('./router/printBill')
+const user = require('./router/user')
 const bodyParser = require("body-parser");
 require("./router/dataBaseConnection");
 
@@ -55,6 +56,7 @@ app.use(guestreportRouter)
 app.use(propertyDetailsRouter)
 app.use(search);
 app.use(printbill);
+app.use(user);
 app.use(express.json());
 
 // start the server

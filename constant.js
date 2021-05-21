@@ -23,6 +23,7 @@ const collections = {
   reporttype:"reporttype",
   propertyDetails:"propertyDetails",
   sequence:"sequence",
+  user:"user",
 };
 
 const mongoUrl = process.env.MONGODB_URL;

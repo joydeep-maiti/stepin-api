@@ -18,7 +18,7 @@ dataBaseConnection().then(dbs => {
     let param = req.query.search
     if(req.query.checkin && !nulls.includes(req.query.checkin)){
       let date =new Date(req.query.checkin) ;
-      console.log("date",date)
+      // console.log("date",date)
       if(date == "Invalid Date"){
         res.status(400).send()
       }else{
@@ -29,6 +29,14 @@ dataBaseConnection().then(dbs => {
       }
     }else if(param && !nulls.includes(param)){
       guestSearch(dbs,res, param)
+    }else if(req.query.searchdate && !nulls.includes(req.query.searchdate)){
+      let date =new Date(req.query.searchdate) ;
+      // console.log("date",date)
+      if(date == "Invalid Date"){
+        res.status(400).send()
+      }else{
+        guestSearchByDate(dbs,res, req.query.searchdate)
+      }
     }else {
       res.status(400).send()
     }
@@ -149,6 +157,42 @@ const guestSearch = (dbs,res,param)=>{
             }
           }, {
             'contactNumber': {
+              '$regex': new RegExp(param, 'i')
+            }
+          }
+        ]
+      }
+    }, {
+      '$lookup': {
+        'from': 'billing', 
+        'localField': '_id', 
+        'foreignField': 'bookingId', 
+        'as': 'bill'
+      }
+    }, {
+      '$sort': {
+        'checkIn': -1
+      }
+    }
+  ]).toArray(function (err, result) {
+    if(result)
+      res.status(200).send(result)
+    console.log(err)
+    res.status(500).send()
+  })
+}
+
+const guestSearchByDate = (dbs,res,param)=>{
+  dbs.collection('booking').aggregate([
+    {
+      '$match': {
+        '$or': [
+          {
+            'checkIn': {
+              '$regex': new RegExp(param, 'i')
+            }
+          }, {
+            'checkOut': {
               '$regex': new RegExp(param, 'i')
             }
           }

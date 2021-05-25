@@ -68,7 +68,8 @@ dataBaseConnection().then(dbs =>{
         console.log("hi")
         findByObj1(dbs, collections.booking , 
          
-          {checkIn:{$gte:datedup, $lte:datedup1},'status.cancel':false,},{checkIn:1})
+          {checkIn:{$gte:date, $lte:date1},$and:[
+            {'status.checkedIn':false} , {'status.checkedOut':false},{'status.cancel':false}]},{checkIn:1})
         .then(result =>{
           var report = getBookingReport(result , reportType);
           res.send(report)
@@ -177,7 +178,7 @@ function getBookingReport(data,type){
   var bookingreport=[];
   for(const i in data){
 
-    if((type == "Monthly Booking" || type == "Daily Booking" || type == "Arrival Date")&& data[i].status.cancel == false)
+    if((type == "Monthly Booking" || type == "Daily Booking" )&& data[i].status.cancel == false)
     {
       console.log("entered",type)
       bookingreport.push({
@@ -197,6 +198,22 @@ function getBookingReport(data,type){
     console.log("occupiedRooms",occupiedRooms)
     console.log("adults",adults)
     console.log("children",children)*/
+  }
+  if(type == "Arrival Date" && data[i].status.checkedIn == false && data[i].status.checkedOut == false && data[i].status.cancel == false){
+    console.log("entered",type)
+      bookingreport.push({
+        bookingId: data[i]._id || "",
+        bookingDate: (data[i].bookingDate)|| "",
+        guestName: (data[i].firstName+" "+data[i].lastName) || "",
+        dateOfArrival: (data[i].checkIn) || "",
+        dateOfDeparture: (data[i].checkOut)|| "",
+        nights: noOfDaysStay(data[i].checkIn,data[i].checkOut) || "",
+        NoofRooms: (data[i].rooms).length || "",
+        bookedBy:data[i].bookedBy || "",
+        referenceNumber: data[i].referencenumber || data[i].memberNumber || "",
+        Amount: data[i].roomCharges || "",
+        Advance: data[i].advance 
+      });
   }
   if(type == "Cancelled" && data[i].status.cancel == true)
   {
@@ -321,4 +338,5 @@ function totalPax(adults,children){
    return total;
 
 }
+
 module.exports = router;

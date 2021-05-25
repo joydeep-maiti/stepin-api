@@ -18,6 +18,7 @@ const guestreportRouter =  require('./router/guest');
 const propertyDetailsRouter = require('./router/propertyDetails')
 const search = require('./router/search');
 const printbill = require('./router/printBill')
+const occupnacyreport = require('./router/occupancyReport')
 const user = require('./router/user')
 const bodyParser = require("body-parser");
 require("./router/dataBaseConnection");
@@ -54,6 +55,7 @@ app.use(posReportRouter)
 app.use(billingReportRouter)
 app.use(guestreportRouter)
 app.use(propertyDetailsRouter)
+app.use(occupnacyreport)
 app.use(search);
 app.use(printbill);
 app.use(user);

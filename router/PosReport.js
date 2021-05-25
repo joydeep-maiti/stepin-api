@@ -7,6 +7,7 @@ const dataBaseConnection = require("./dataBaseConnection");
 const collections = require("../constant").collections;
 const { findAll, findOne, findByObj1,findByObj2} = require("./data");
 const { ObjectID} = require("mongodb");
+const { add } = require("date-fns");
 
 
 dataBaseConnection().then(dbs =>{
@@ -231,15 +232,19 @@ if((type == "All POS")  &&(data[i].pos.Others || data[i].pos.Food || data[i].pos
   
    for(var j = 0 ; j<sam.length;j++){
      let sample = data[i].pos;
+     let Food = getPos(data[i].pos.Food,"Food");
+     let Transport = getPos(data[i].pos.Transport,"Transport")
       posreport.push({
         guestName: (data[i].guestName) || "",
        date:(sam[j].date) || "",
        //Food:data[i].sam[j].Food,
+       
         Food:getPos(data[i].pos.Food,"Food") ,
         Transport:getPos(data[i].pos.Transport,"Transport"),
          Laundary:getPos(data[i].pos.Laundary,"Laundary"),
          Agent:getPos(data[i].pos.Agent,"Agent") || "",
          Others:getPos(data[i].pos.Others,"Others") || "",
+        Total:((getPos(data[i].pos.Food,"Food")-0)+(getPos(data[i].pos.Transport,"Transport")-0)+(getPos(data[i].pos.Laundary,"Laundary")-0)+(getPos(data[i].pos.Agent,"Agent")-0)+(getPos(data[i].pos.Others,"Others")-0))
           }
         )
      
@@ -259,16 +264,19 @@ if((type == "All POS")  &&(data[i].pos.Others || data[i].pos.Food || data[i].pos
 
 function getPos(data, type){
   let amount = "";
+  let sam =0;
   if(data == undefined){
     return "";
   }else{
     for(var i =0 ; i<data.length ; i++){
-      amount = data[i].amount
+      amount  = data[i].amount
       console.log("ouput",data[i].amount);
     }
     console.log(amount)
-    return amount;
+    return amount ;
   }
 }
+
+
 
 module.exports = router;

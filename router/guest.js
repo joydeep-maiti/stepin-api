@@ -23,7 +23,7 @@ dataBaseConnection().then(dbs=>{
         console.log("dates are:",date , date1);
 
         try{
-          if(reportType == "Guest"){
+          if(reportType == "Domicillary Guest"){
             findByObj1(dbs, collections.booking , 
               {checkIn:{$gte:date, $lte:date1},'status.checkedIn':true,nationality:'Indian'},{checkIn:1})
             .then(result =>{
@@ -73,7 +73,7 @@ function getGuestReport(data,type){
   var guestreport =[]
   //console.log(data)
   for(const i in data){
-    if(type == "Guest" && data[i].nationality === "Indian"){
+    if(type == "Domicillary Guest" && data[i].nationality === "Indian"){
       console.log("Guest Type",type);
         guestreport.push({
         checkIn: (data[i].checkIn) || "",
@@ -81,7 +81,8 @@ function getGuestReport(data,type){
         guestName: (data[i].firstName+" "+data[i].lastName) || "",
         nationality:(data[i].nationality) || "",
         NoofRooms: (data[i].rooms).length || "",
-        bookedBy:data[i].bookedBy || "",
+        //bookedBy:data[i].bookedBy || "",
+        bookedBy:getbookedby(data[i].bookedBy)||"",
         referenceNumber: data[i].referencenumber || data[i].memberNumber || "",
         Amount: data[i].roomCharges || "",
         Advance: data[i].advance || "",
@@ -140,7 +141,11 @@ function getGuestReport(data,type){
   return guestreport;``
 }
 
-
+function getbookedby(data){
+  if(data == "Agent"){
+    
+  }
+}
 
 module.exports = router;
 

@@ -4,7 +4,7 @@ const cors = require("cors");
 const router = new express.Router();
 const dataBaseConnection = require("./dataBaseConnection");
 const collections = require("../constant").collections;
-const { findAll, findOne, findByObj, correctMonthAndYear, insertOne, updateOne, deleteOne } = require("./data");
+const { findAll, findOne, findByObj, correctMonthAndYear, insertOne, updateOne, deleteOne, updateMany } = require("./data");
 const moment = require("moment");
 const momentTimeZone = require("moment-timezone");
 const { ObjectID } = require("mongodb");
@@ -148,9 +148,42 @@ dataBaseConnection().then(dbs => {
     }
   });
 
+  router.patch("/rooms/dirty", cors(), async (req, res) => {
+    console.log("PATCH /rooms/dirty", req.body)
+    let ids = req.body.rooms;
+    if(!ids || !ids.length){
+      res.status(400).send()
+    }else {
+      let roomIds = ids.map(el=> (new ObjectID(el)))
+      console.log("roomIds",roomIds)
+      try {
+        updateMany(dbs, collections.room, {_id: {$in:roomIds}}, {$set:{dirty:true}}).then(result => res.status(200).send(result));
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  });
+
+  router.patch("/rooms/clean", cors(), async (req, res) => {
+    console.log("PATCH /rooms/dirty", req.body)
+    let ids = req.body.rooms;
+    if(!ids || !ids.length){
+      res.status(400).send()
+    }else {
+      // let roomIds = ids.map(el=> (new ObjectID(el)))
+      console.log("roomIds",roomIds)
+      try {
+        updateMany(dbs, collections.room, {_id: {$in:roomIds}}, {$set:{dirty:false}}).then(result => res.status(200).send(result));
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  });
+
+
   router.patch("/rooms", cors(), async (req, res) => {
     const {_id, ...body} = req.body
-    console.log("PATCH /rooms", req.body,body)
+    // console.log("PATCH /rooms", req.body,body)
     try {
       updateOne(dbs, collections.room, {_id:new ObjectID(_id)}, {$set:body}).then(result => res.status(200).send());
     } catch (error) {

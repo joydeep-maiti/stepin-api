@@ -160,7 +160,8 @@ const guestSearch = (dbs,res,param)=>{
               '$regex': new RegExp(param, 'i')
             }
           }
-        ]
+        ],
+        'status.checkedIn':true
       }
     }, {
       '$lookup': {
@@ -196,7 +197,8 @@ const guestSearchByDate = (dbs,res,param)=>{
               '$regex': new RegExp(param, 'i')
             }
           }
-        ]
+        ],
+        'status.checkedIn':true
       }
     }, {
       '$lookup': {

@@ -19,6 +19,7 @@ const propertyDetailsRouter = require('./router/propertyDetails')
 const search = require('./router/search');
 const printbill = require('./router/printBill')
 const occupnacyreport = require('./router/occupancyReport')
+const taxcollectionreport = require('./router/taxCollectionReport')
 const user = require('./router/user')
 const bodyParser = require("body-parser");
 require("./router/dataBaseConnection");
@@ -58,6 +59,7 @@ app.use(propertyDetailsRouter)
 app.use(occupnacyreport)
 app.use(search);
 app.use(printbill);
+app.use(taxcollectionreport)
 app.use(user);
 app.use(express.json());
 

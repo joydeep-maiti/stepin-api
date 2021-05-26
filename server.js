@@ -20,6 +20,7 @@ const search = require('./router/search');
 const printbill = require('./router/printBill')
 const occupnacyreport = require('./router/occupancyReport')
 const user = require('./router/user')
+const collectionReportRouter = require ('./router/collectionReport')
 const bodyParser = require("body-parser");
 require("./router/dataBaseConnection");
 
@@ -59,6 +60,7 @@ app.use(occupnacyreport)
 app.use(search);
 app.use(printbill);
 app.use(user);
+app.use(collectionReportRouter)
 app.use(express.json());
 
 // start the server

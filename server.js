@@ -20,7 +20,7 @@ const search = require('./router/search');
 const inventory = require('./router/intentory')
 const printbill = require('./router/printBill')
 const occupnacyreport = require('./router/occupancyReport')
-const taxcollectionreport = require('./router/taxCollectionReport')
+const taxcollectionReport = require('./router/taxCollectionReport')
 const user = require('./router/user')
 const collectionReportRouter = require ('./router/collectionReport')
 const bodyParser = require("body-parser");
@@ -61,7 +61,7 @@ app.use(propertyDetailsRouter)
 app.use(occupnacyreport)
 app.use(search);
 app.use(printbill);
-app.use(taxcollectionreport)
+app.use(taxcollectionReport)
 app.use(user);
 app.use(inventory);
 app.use(collectionReportRouter)

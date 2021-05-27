@@ -17,6 +17,7 @@ const billingReportRouter = require ('./router/billingReport')
 const guestreportRouter =  require('./router/guest');
 const propertyDetailsRouter = require('./router/propertyDetails')
 const search = require('./router/search');
+const inventory = require('./router/intentory')
 const printbill = require('./router/printBill')
 const occupnacyreport = require('./router/occupancyReport')
 const user = require('./router/user')
@@ -60,6 +61,7 @@ app.use(occupnacyreport)
 app.use(search);
 app.use(printbill);
 app.use(user);
+app.use(inventory);
 app.use(collectionReportRouter)
 app.use(express.json());
 

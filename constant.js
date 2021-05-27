@@ -24,6 +24,7 @@ const collections = {
   propertyDetails:"propertyDetails",
   sequence:"sequence",
   user:"user",
+  foodInventory:"foodInventory",
 };
 
 const mongoUrl = process.env.MONGODB_URL;

@@ -100,8 +100,8 @@ dataBaseConnection().then(dbs => {
         checkOutIsBtw ||
         startDateIsInclude ||
         endDateIsInclude
-        ? true
-        : false;
+        ? !booking.status.checkedOut? true
+        :false :false;
     };
 
     for (let i = 0; i <= NoOfMonthsBtwDates; i++) {

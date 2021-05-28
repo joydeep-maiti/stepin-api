@@ -132,7 +132,7 @@ dataBaseConnection().then(dbs => {
       );
     });
 
-    res.send(sortRooms(getUpdatedRooms(availableRooms)));
+    res.send(sortRooms(availableRooms));
   });
 
   router.post("/rooms", cors(), async (req, res) => {

@@ -14,6 +14,7 @@ dataBaseConnection().then(dbs => {
       findAll(dbs, collections.user).then(result => res.status(200).send(result));
     } catch (error) {
       console.log(error);
+      res.status(500).send(result)
     }
   });
 
@@ -35,6 +36,7 @@ dataBaseConnection().then(dbs => {
       });
     } catch (error) {
       console.log(error);
+      res.status(500).send(result)
     }
   });
 
@@ -45,6 +47,7 @@ dataBaseConnection().then(dbs => {
       updateOne(dbs, collections.user, {_id:new ObjectID(_id)}, {$set:body}).then(result => res.status(200).send());
     } catch (error) {
       console.log(error);
+      res.status(500).send(result)
     }
   });
 
@@ -54,6 +57,7 @@ dataBaseConnection().then(dbs => {
       deleteOne(dbs, collections.user, {_id:new ObjectID(req.params.id)}).then(result => res.status(200).send());
     } catch (error) {
       console.log(error);
+      res.status(500).send(result)
     }
   });
 });

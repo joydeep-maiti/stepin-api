@@ -26,7 +26,8 @@ const collections = {
   user:"user",
   foodInventory:"foodInventory",
   laundaryInventory:"laundaryInventory",
-  houseKeepingInventory:"houseKeepingInventory"
+  houseKeepingInventory:"houseKeepingInventory",
+  access:"access",
 };
 
 const mongoUrl = process.env.MONGODB_URL;

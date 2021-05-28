@@ -155,7 +155,7 @@ dataBaseConnection().then(dbs => {
       res.status(400).send()
     }else {
       let roomIds = ids.map(el=> (new ObjectID(el)))
-      console.log("roomIds",roomIds)
+      // console.log("roomIds",roomIds)
       try {
         updateMany(dbs, collections.room, {_id: {$in:roomIds}}, {$set:{dirty:true}}).then(result => res.status(200).send(result));
       } catch (error) {
@@ -170,8 +170,8 @@ dataBaseConnection().then(dbs => {
     if(!ids || !ids.length){
       res.status(400).send()
     }else {
-      // let roomIds = ids.map(el=> (new ObjectID(el)))
-      console.log("roomIds",roomIds)
+      let roomIds = ids.map(el=> (new ObjectID(el)))
+      // console.log("roomIds",roomIds)
       try {
         updateMany(dbs, collections.room, {_id: {$in:roomIds}}, {$set:{dirty:false}}).then(result => res.status(200).send(result));
       } catch (error) {

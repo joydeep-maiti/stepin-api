@@ -23,6 +23,7 @@ const occupnacyreport = require('./router/occupancyReport')
 const taxcollectionReport = require('./router/taxCollectionReport')
 const user = require('./router/user')
 const collectionReportRouter = require ('./router/collectionReport')
+const access = require ('./router/access')
 const bodyParser = require("body-parser");
 require("./router/dataBaseConnection");
 
@@ -65,6 +66,7 @@ app.use(taxcollectionReport)
 app.use(user);
 app.use(inventory);
 app.use(collectionReportRouter)
+app.use(access)
 app.use(express.json());
 
 // start the server

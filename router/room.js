@@ -83,10 +83,14 @@ dataBaseConnection().then(dbs => {
       let startDateIsInclude = false,
         endDateIsInclude = false;
 
-      if (compareDates(startDate, checkIn) || compareDates(startDate, checkOut))
+      if (compareDates(startDate, checkIn))
         startDateIsInclude = true;
-      if (compareDates(endDate, checkIn) || compareDates(endDate, checkOut))
+      if (compareDates(endDate, checkIn))
         endDateIsInclude = true;
+      // if (compareDates(startDate, checkIn) || compareDates(startDate, checkOut))
+      //   startDateIsInclude = true;
+      // if (compareDates(endDate, checkIn) || compareDates(endDate, checkOut))
+      //   endDateIsInclude = true;
 
       // if (bookingId) console.log(bookingId);
 
@@ -120,7 +124,7 @@ dataBaseConnection().then(dbs => {
 
     const uniqueFilteredRooms = removeDuplicates(filteredRooms, "roomNumber");
 
-    let availableRooms = await findAll(dbs, collections.room);
+    let availableRooms = await findAll(dbs, collections.room, {$or:[{inactive:false},{inactive:{$exists:false}}]});
 
     uniqueFilteredRooms.forEach(filteredRoom => {
       availableRooms = availableRooms.filter(

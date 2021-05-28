@@ -25,6 +25,8 @@ const collections = {
   sequence:"sequence",
   user:"user",
   foodInventory:"foodInventory",
+  laundaryInventory:"laundaryInventory",
+  houseKeepingInventory:"houseKeepingInventory",
   access:"access",
 };
 

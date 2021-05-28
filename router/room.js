@@ -124,7 +124,7 @@ dataBaseConnection().then(dbs => {
 
     const uniqueFilteredRooms = removeDuplicates(filteredRooms, "roomNumber");
 
-    let availableRooms = await findAll(dbs, collections.room, {$or:[{inactive:false},{inactive:{$exists:false}}]});
+    let availableRooms = await findByObj(dbs, collections.room, {$or:[{inactive:false},{inactive:{$exists:false}}]});
 
     uniqueFilteredRooms.forEach(filteredRoom => {
       availableRooms = availableRooms.filter(

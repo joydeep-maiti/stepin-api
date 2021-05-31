@@ -20,8 +20,10 @@ const search = require('./router/search');
 const inventory = require('./router/intentory')
 const printbill = require('./router/printBill')
 const occupnacyreport = require('./router/occupancyReport')
+const taxcollectionReport = require('./router/taxCollectionReport')
 const user = require('./router/user')
 const collectionReportRouter = require ('./router/collectionReport')
+const access = require ('./router/access')
 const bodyParser = require("body-parser");
 require("./router/dataBaseConnection");
 
@@ -60,9 +62,11 @@ app.use(propertyDetailsRouter)
 app.use(occupnacyreport)
 app.use(search);
 app.use(printbill);
+app.use(taxcollectionReport)
 app.use(user);
 app.use(inventory);
 app.use(collectionReportRouter)
+app.use(access)
 app.use(express.json());
 
 // start the server

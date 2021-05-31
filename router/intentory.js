@@ -96,7 +96,7 @@ dataBaseConnection().then(dbs => {
     const {_id, ...body} = req.body
     console.log("PATCH /laundaryInventory", body)
     try {
-      updateOne(dbs, collections.foodInventory, {_id:new ObjectID(_id)}, {$set:body}).then(result => res.sendStatus(200));
+      updateOne(dbs, collections.laundaryInventory, {_id:new ObjectID(_id)}, {$set:body}).then(result => res.sendStatus(200));
     } catch (error) {
       console.log(error);
     }
@@ -156,8 +156,6 @@ router.patch("/houseKeepingInventory", cors(), async (req, res) => {
     console.log(error);
   }
 });
-
-
 // Delete
 router.delete("/houseKeepingInventory/:id",cors(),async (req,res)=>{
   console.log("Delete id",req.params.id);

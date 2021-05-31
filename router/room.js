@@ -135,6 +135,23 @@ dataBaseConnection().then(dbs => {
     res.send(sortRooms(availableRooms));
   });
 
+  router.post("/rooms/getstatus", cors(), async (req, res) => {
+    console.log("POST /rooms/getstatus", req.body)
+    let ids = req.body.rooms
+    if(!ids || !ids.length){
+      res.status(400).send()
+    }else {
+      let roomIds = ids.map(el=> (new ObjectID(el)))
+      // console.log("roomIds",roomIds)
+      try {
+        findByObj(dbs, collections.room, {_id: {$in:roomIds}}).then(result => res.status(200).send(result));
+      } catch (error) {
+        console.log(error);
+        res.status(500).send(result)
+      }
+    }
+  });
+
   router.post("/rooms", cors(), async (req, res) => {
     console.log("POST /rooms", req.body)
     try {

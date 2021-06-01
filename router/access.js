@@ -48,7 +48,7 @@ dataBaseConnection().then(dbs => {
   router.post("/access", cors(), async (req, res) => {
     console.log("PATCH /access", req.body)
     try {
-      upSert(dbs, collections.access, { role: req.body.role, department: req.body.department}, { $set: {permissions:req.body.permissions||[]} }, { upsert: true })
+      upSert(dbs, collections.access, { role: req.body.role, department: req.body.department}, { $set: {permissions:req.body.permissions||[], selectAll:req.body.selectAll} }, { upsert: true })
       .then(result => res.status(200).send())
     } catch (error) {
       console.log(error);

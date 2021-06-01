@@ -69,10 +69,10 @@ dataBaseConnection().then(dbs => {
               $elemMatch: { month: req.body.month, year: req.body.year }
             }
           },
-          { "status.cancel": { $eq: false } }
+          { "status.cancel": { $eq: false } },
+          { "status.checkedOut": { $eq: false } }
         ]
       };
-
       findByObj(dbs, collections.booking, filter).then(result => {
         res.send(result);
       });

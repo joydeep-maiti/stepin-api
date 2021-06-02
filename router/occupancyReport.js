@@ -67,7 +67,8 @@ dataBaseConnection().then(dbs => {
                           stay: noOfDaysStay(result.checkIn,result.checkOut),
                           adults: result.adults,
                           children: result.children,
-                          planType: result.planType
+                          planType: result.planType,
+                          id:result._id
                         });
                         if(i == rooms1.length-1){
                           res.status(200).send(dateReport)

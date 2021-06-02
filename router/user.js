@@ -18,6 +18,73 @@ dataBaseConnection().then(dbs => {
     }
   });
 
+  router.post("/user/login", cors(), async (req, res) => {
+    console.log("POST /user/login", req.body)
+    try {
+      dbs.collection(collections.user).aggregate([
+        {
+          '$match': {
+            'username': req.body.username, 
+            'password': req.body.password
+          }
+        }, {
+          '$lookup': {
+            'from': 'access', 
+            'let': {
+              'rol': '$role', 
+              'dept': '$department'
+            }, 
+            'pipeline': [
+              {
+                '$match': {
+                  '$expr': {
+                    '$and': [
+                      {
+                        '$eq': [
+                          '$role', '$$rol'
+                        ]
+                      }, {
+                        '$eq': [
+                          '$department', '$$dept'
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ], 
+            'as': 'permissionObj'
+          }
+        }, {
+          '$unwind': {
+            'path': '$permissionObj'
+          }
+        }, {
+          '$addFields': {
+            'permissions': '$permissionObj.permissions'
+          }
+        }, {
+          '$project': {
+            'username': 1, 
+            'role': 1, 
+            'department': 1, 
+            'permissions': 1
+          }
+        }
+      ]).toArray(function(err, result) {
+        if(err)
+          res.status(500).send()
+        if(result.length)
+          res.status(200).send(result)
+        else
+          res.status(400).send()
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send(result)
+    }
+  });
+
   router.post("/user", cors(), async (req, res) => {
     console.log("POST /user", req.body)
     try {

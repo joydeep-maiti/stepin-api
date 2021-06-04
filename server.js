@@ -24,6 +24,7 @@ const taxcollectionReport = require('./router/taxCollectionReport')
 const user = require('./router/user')
 const collectionReportRouter = require ('./router/collectionReport')
 const agentReport = require('./router/agentReport');
+const kotRouter = require('./router/kot')
 const access = require ('./router/access')
 const bodyParser = require("body-parser");
 require("./router/dataBaseConnection");
@@ -69,6 +70,7 @@ app.use(inventory);
 app.use(collectionReportRouter)
 app.use(agentReport)
 app.use(access)
+app.use(kotRouter)
 app.use(express.json());
 
 // start the server

@@ -27,6 +27,7 @@ dataBaseConnection().then(dbs => {
   });
 
   router.get("/kot/:id", cors(), async (req, res) => {
+    console.log("Get",req.params.id)
     try {
       findOne(dbs, collections.kot, {bookingId:new ObjectID(req.params.id)}).then(result => res.status(200).send(result));
     } catch (error) {
@@ -74,10 +75,10 @@ dataBaseConnection().then(dbs => {
   });
 
   router.patch("/kot", cors(), async (req, res) => {
-    const {_id, ...body} = req.body
+    const {bookingId, ...body} = req.body
     console.log("PATCH /kot", req.body,body)
     try {
-      updateOne(dbs, collections.kot, {_id:new ObjectID(_id)}, {$set:{kot:body.kot}}).then(result => res.status(200).send());
+      updateOne(dbs, collections.kot, {bookingId:new ObjectID(bookingId)}, {$set:{kot:body.kot}}).then(result => res.status(200).send());
     } catch (error) {
       console.log(error);
     }

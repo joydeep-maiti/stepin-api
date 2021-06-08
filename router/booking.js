@@ -212,6 +212,18 @@ dataBaseConnection().then(dbs => {
       console.log(error);
     }
   });
+
+  router.get("/expectedcheckouts", cors(), async (req, res) => {
+
+    try {
+      findByObj(dbs, collections.booking, {"status.checkedIn":true, "status.checkedOut":false})
+      .then(result=>{
+        res.status(200).send(result)
+      })
+    } catch (error) {
+      console.log(error);
+    }
+  });
 });
 
 module.exports = router;

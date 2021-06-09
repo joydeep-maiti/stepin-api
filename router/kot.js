@@ -45,34 +45,57 @@ dataBaseConnection().then(dbs => {
       if(result){
        // console.log(result)
        res.status(400).json({msg:"kot already exist!"})
-       
-        
+      
       }else{
-        return findOne(dbs, collections.sequence,{name:"kot"})
-        
-        
+        return findOne(dbs, collections.sequence,{name:"kot"}) 
       }
     })
     .then(result => {
       if(result){
-        //console.log(result)
-        // upSert(dbs, collections.kot, { kot: req.body.kot}, { $set: {kotID:req.body.kodID ||  "POS"+(1000000+Number(result.seq))} }, { upsert: true })
-        // .then(result =>{
-        //   console.log(result)
-        //   res.status(200).send()})
-        //kot: req.body.kot[0].kotArray[0]
         let sam= 'kot[0].kotId'
         let x=getBody(req.body,result)
         //console.log("x",x)
-          return insertOne(dbs, collections.kot,{...x[0], bookingId: new ObjectID(x[0].bookingId)}).then(result=>{
-            console.log(result.ops[0].kot[0].kotId)
-            res.send(result.ops[0].kot[0].kotId)
-          })
-        //  .then(ress=>
-        //   {
-        //     console.log(ress);
-        //   return updateOne(dbs, collections.kot,{...ress,bookingId: new ObjectID(ress.bookingId) ,$push: { 'kot[0].kotId': 'KOT000001' }})
-        //   })
+          return insertOne(dbs, collections.kot,{...x[0], bookingId: new ObjectID(x[0].bookingId)})
+      }else{
+        res.status(401).send()
+      }
+    })
+    .then(result => {
+      if(result){
+        console.log("entered")
+        return updateOne(dbs, collections.sequence, {name:"kot"}, {$inc:{seq:1}})
+      }else{
+        res.status(401).send()
+      }
+    })
+    .then(result => {
+      if(result){
+        res.status(201).send()
+      }else{
+        res.status(401).send()
+      }
+    })
+    .catch((error)=>{
+      console.log(error);
+      res.status(500).send()
+    })
+  });
+
+
+  router.patch("/kot", cors(), async (req, res) => {
+    const {bookingId, ...body} = req.body
+console.log("PATCH /kot", req.body,body)
+   
+   findOne(dbs, collections.sequence,{name:"kot"})   
+    .then(result => {
+      if(result){
+        let x=getPatchBody(body,result)
+        console.log("x",x)
+          return updateOne(dbs, collections.kot,{bookingId: new ObjectID(req.body.bookingId)}, {$set:{kot: x }})
+          // .then(result=>{
+          //   //console.log(result.ops[0].kot[0].kotId)
+          //   //res.send(result.ops[0].kot[0].kotId)
+          // })
       }else{
         res.status(401).send()
       }
@@ -98,27 +121,24 @@ dataBaseConnection().then(dbs => {
     })
   });
 
-  router.patch("/kot", cors(), async (req, res) => {
-    const {bookingId, ...body} = req.body
-    console.log("PATCH /kot", req.body,body)
-    try {
-      updateOne(dbs, collections.kot, {bookingId:new ObjectID(bookingId)}, {$set:{kot:body.kot}}).then(result => res.status(200).send());
-    } catch (error) {
-      console.log(error);
-    }
-  });
 })
 
-function getBody(kotbody,seq){
-  // console.log(kotbody)
-  // console.log(seq)
+function getPatchBody(kotbody,seq)
+{
   var body=[]
-  
+  body.push({
+    kotId: "KOT"+(1000000+Number(seq.seq)),
+    kotArray : kotbody.kotArray
+  })
+  return body
+}
+
+
+function getBody(kotbody,seq){
+  var body=[]
   body.push({
     bookingId: kotbody.bookingId,
     kot :  getKot(kotbody.kotArray,seq),
-    //kotID : "kot"+(1000000+Number(seq.seq))
-
   })
   return body
 

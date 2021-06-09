@@ -63,8 +63,11 @@ dataBaseConnection().then(dbs => {
         //kot: req.body.kot[0].kotArray[0]
         let sam= 'kot[0].kotId'
         let x=getBody(req.body,result)
-        console.log("x",x)
-          return insertOne(dbs, collections.kot,{...x[0], bookingId: new ObjectID(x[0].bookingId)})
+        //console.log("x",x)
+          return insertOne(dbs, collections.kot,{...x[0], bookingId: new ObjectID(x[0].bookingId)}).then(result=>{
+            console.log(result.ops[0].kot[0].kotId)
+            res.send(result.ops[0].kot[0].kotId)
+          })
         //  .then(ress=>
         //   {
         //     console.log(ress);
@@ -107,13 +110,13 @@ dataBaseConnection().then(dbs => {
 })
 
 function getBody(kotbody,seq){
-  console.log(kotbody)
-  console.log(seq)
+  // console.log(kotbody)
+  // console.log(seq)
   var body=[]
   
   body.push({
     bookingId: kotbody.bookingId,
-    kot :  getKot(kotbody.kot,seq),
+    kot :  getKot(kotbody.kotArray,seq),
     //kotID : "kot"+(1000000+Number(seq.seq))
 
   })
@@ -123,14 +126,15 @@ function getBody(kotbody,seq){
 
 function getKot(sam,seq){
   var kot=[]
-  for(const i in sam){
+  console.log("kotArray",sam)
+  // for(const i in sam){
     kot.push({
-      kotId: "KOT"+(1000+Number(seq.seq)+i),
-      kotArray: sam[i].kotArray
+      kotId: "KOT"+(1000+Number(seq.seq)),
+      kotArray: sam
 
     })
-  }
-  console.log("kot",kot)
+  //}
+  //console.log("kot",kot)
 return kot
 
 }

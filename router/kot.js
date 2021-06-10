@@ -40,6 +40,7 @@ dataBaseConnection().then(dbs => {
 
   router.post("/kot", cors(), async (req, res) => {
     //console.log("POST /kot", req.body)
+    let x = [];
     findOne(dbs, collections.kot,{bookingId: new ObjectID(req.body.bookingId)})
     .then(result => {
       if(result){
@@ -52,8 +53,7 @@ dataBaseConnection().then(dbs => {
     })
     .then(result => {
       if(result){
-        let sam= 'kot[0].kotId'
-        let x=getBody(req.body,result)
+        x=getBody(req.body,result)
         //console.log("x",x)
           return insertOne(dbs, collections.kot,{...x[0], bookingId: new ObjectID(x[0].bookingId)})
       }else{
@@ -70,7 +70,7 @@ dataBaseConnection().then(dbs => {
     })
     .then(result => {
       if(result){
-        res.status(201).send()
+        res.status(200).send({"kotId":x[0].kotId})
       }else{
         res.status(401).send()
       }
@@ -80,28 +80,20 @@ dataBaseConnection().then(dbs => {
       res.status(500).send()
     })
   });
-
-
   router.patch("/kot", cors(), async (req, res) => {
     const {bookingId, ...body} = req.body
+    let x = [];
 console.log("PATCH /kot", req.body,body)
-   
    findOne(dbs, collections.sequence,{name:"kot"})   
     .then(result => {
       if(result){
-        let x=getPatchBody(body,result)
-        console.log("x",x)
+         x=getPatchBody(body,result)
           return updateOne(dbs, collections.kot,{bookingId: new ObjectID(req.body.bookingId)},{$push: { kot: x[0]}})
-          // .then(result=>{
-          //   //console.log(result.ops[0].kot[0].kotId)
-          //   //res.send(result.ops[0].kot[0].kotId)
-          // })
       }else{
         res.status(401).send()
       }
     })
     .then(result => {
-      
       if(result){
         return updateOne(dbs, collections.sequence, {name:"kot"}, {$inc:{seq:1}})
       }else{
@@ -110,7 +102,8 @@ console.log("PATCH /kot", req.body,body)
     })
     .then(result => {
       if(result){
-        res.status(201).send()
+        console.log("Kotid",x[0].kotId)
+        res.status(200).send({"kotId":x[0].kotId})
       }else{
         res.status(401).send()
       }

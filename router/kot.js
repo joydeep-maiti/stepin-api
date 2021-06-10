@@ -91,7 +91,7 @@ console.log("PATCH /kot", req.body,body)
       if(result){
         let x=getPatchBody(body,result)
         console.log("x",x)
-          return updateOne(dbs, collections.kot,{bookingId: new ObjectID(req.body.bookingId)}, {$set:{kot: x }})
+          return updateOne(dbs, collections.kot,{bookingId: new ObjectID(req.body.bookingId)},{$push: { kot: x[0]}})
           // .then(result=>{
           //   //console.log(result.ops[0].kot[0].kotId)
           //   //res.send(result.ops[0].kot[0].kotId)

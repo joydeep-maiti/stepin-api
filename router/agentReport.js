@@ -57,13 +57,15 @@ dataBaseConnection().then(dbs =>{
                 agentreport.push({
                   billNo : result[i].billingId || "",
                  // name : result[i].guestName || "",
-                  billingDate : result[i].checkOut || "",
+                 // billingDate : result[i].checkOut || "",
                   guestName : result[i].guestName|| "",
                   bookingId : result[i].bookingId ||"",
                   roomrate : parseFloat(result[i].roomCharges) || "",
                   bookedBy : getbookingdetails(result[i].details) || "",
                   refnumber : getrefnymber(result[i].details)|| "",
-                  agentname : getagentname(result[i].details)|| ""
+                  agentname : getagentname(result[i].details)|| "",
+                  checkIn : (result[i].checkIn)|| "",
+                  checkOut : result[i].checkOut || ""
                 })
               }
              
@@ -101,7 +103,9 @@ dataBaseConnection().then(dbs =>{
                   agentreport.push({
                     billNo : result[i].billingId || "",
                    // name : result[i].guestName || "",
-                    billingDate : result[i].checkOut || "",
+                   // billingDate : result[i].checkOut || "",
+                   checkIn : (result[i].checkIn)|| "",
+                  checkOut : result[i].checkOut || "",
                     guestName : result[i].guestName|| "",
                     bookingId : result[i].bookingId ||"",
                     roomrate : parseFloat(result[i].roomCharges) || "",
@@ -148,14 +152,20 @@ dataBaseConnection().then(dbs =>{
                    agentreport.push({
                      billNo : result[i].billingId || "",
                     // name : result[i].guestName || "",
-                     billingDate : result[i].checkOut || "",
+                    // billingDate : result[i].checkOut || "",
+                    checkIn : (result[i].checkIn)|| "",
+                  checkOut : result[i].checkOut || "",
                      guestName : result[i].guestName|| "",
                      //bookingId : result[i].bookingId ||"",
                      roomrate : parseFloat(result[i].roomCharges) || "",
                      bookedBy : getbookingdetails(result[i].details) || "",
                      refnumber : getrefnymber(result[i].details)|| "",
                      agentname : getagentname(result[i].details)|| "",
-                     status : result[i].paymentData.billingStatus
+                     Amount : result[i].paymentData.balance || "",
+                     status : result[i].paymentData.billingStatus , 
+                     TotalAmount :result[i].totalAmount || "",
+                     Advance : result[i].advance ||""
+
                     //  commisionPercent : 15,
                     //  commission : parseFloat(result[i].roomCharges)*15/100
                    })
@@ -198,6 +208,7 @@ function getagentname(data){
     agentname = data[i].agent;
   }
   return agentname;
+
 }
 
 function getGuestReport(data,type){

@@ -46,6 +46,18 @@ dataBaseConnection().then(dbs=>{
             })
             
           }
+          else if(reportType == "Consolidated Guest"){
+            findByObj1(dbs, collections.booking , 
+             
+              {checkIn:{$gte:date, $lte:date1},'status.checkedIn':true},{checkIn:1})
+            .then(result =>{
+              var report = getGuestReport(result , reportType);
+              res.send(report)
+            console.log(report , report.length); 
+            
+            })
+            
+          }
           else if(reportType == "Room Wise"){
             findByObj1(dbs, collections.booking , 
              
@@ -134,6 +146,25 @@ function getGuestReport(data,type){
        
    });
     }
+    if(type == "Consolidated Guest"){
+     
+      console.log("Guest Type",type);
+        guestreport.push({
+        checkIn: (data[i].checkIn) || "",
+        checkOut: (data[i].checkOut) || "",
+        guestName: (data[i].firstName+" "+data[i].lastName) || "",
+        nationality:(data[i].nationality) || "",
+        NoofRooms: (data[i].rooms).length || "",
+        //bookedBy:data[i].bookedBy || "",
+        bookedBy:getbookedby(data[i].bookedBy)||"",
+        referenceNumber: data[i].referencenumber || data[i].memberNumber || "",
+        Amount: data[i].roomCharges || "",
+        Advance: data[i].advance || "",
+       // Balance:(data[i].roomCharges)-(data[i].advance),
+      
+       
+   });
+  }
   
   }
  

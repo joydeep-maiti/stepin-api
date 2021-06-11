@@ -28,8 +28,8 @@ const collections = {
   laundaryInventory:"laundaryInventory",
   houseKeepingInventory:"houseKeepingInventory",
   access:"access",
-  kot : "kot"
-
+  kot : "kot",
+  userlog:"userlog"
 };
 
 const mongoUrl = process.env.MONGODB_URL;

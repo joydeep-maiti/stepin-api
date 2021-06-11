@@ -18,7 +18,20 @@ dataBaseConnection().then(dbs =>{
         date= req.query.fromDate+"T00:00:00.000Z"
         date1=req.query.toDate+"T23:59:59.999Z"
         try{
-          if(reportType == "Agent Collection"){
+          if(reportType == "Agent Collection(Non-Billed)"){
+            console.log("hi")
+           findByObj1(dbs, collections.booking , 
+             {checkIn:{$gte:date, $lte:date1},bookedBy:"Agent",'status.checkedIn':true},{checkIn:1})
+           .then(result =>{
+             var report = getGuestReport(result , reportType);
+             
+            
+             res.send(report)
+           
+           
+           })
+          }
+          if(reportType == "Agent Collection(Billed)"){
             dbs.collection('billing').aggregate([
               {
                 $lookup:
@@ -44,13 +57,15 @@ dataBaseConnection().then(dbs =>{
                 agentreport.push({
                   billNo : result[i].billingId || "",
                  // name : result[i].guestName || "",
-                  billingDate : result[i].checkOut || "",
+                 // billingDate : result[i].checkOut || "",
                   guestName : result[i].guestName|| "",
                   bookingId : result[i].bookingId ||"",
                   roomrate : parseFloat(result[i].roomCharges) || "",
                   bookedBy : getbookingdetails(result[i].details) || "",
                   refnumber : getrefnymber(result[i].details)|| "",
-                  agentname : getagentname(result[i].details)|| ""
+                  agentname : getagentname(result[i].details)|| "",
+                  checkIn : (result[i].checkIn)|| "",
+                  checkOut : result[i].checkOut || ""
                 })
               }
              
@@ -60,8 +75,7 @@ dataBaseConnection().then(dbs =>{
             
             })
             
-           
-           
+        
           }
             if(reportType == "Agent Commission" ){
               dbs.collection('billing').aggregate([
@@ -89,7 +103,9 @@ dataBaseConnection().then(dbs =>{
                   agentreport.push({
                     billNo : result[i].billingId || "",
                    // name : result[i].guestName || "",
-                    billingDate : result[i].checkOut || "",
+                   // billingDate : result[i].checkOut || "",
+                   checkIn : (result[i].checkIn)|| "",
+                  checkOut : result[i].checkOut || "",
                     guestName : result[i].guestName|| "",
                     bookingId : result[i].bookingId ||"",
                     roomrate : parseFloat(result[i].roomCharges) || "",
@@ -136,14 +152,20 @@ dataBaseConnection().then(dbs =>{
                    agentreport.push({
                      billNo : result[i].billingId || "",
                     // name : result[i].guestName || "",
-                     billingDate : result[i].checkOut || "",
+                    // billingDate : result[i].checkOut || "",
+                    checkIn : (result[i].checkIn)|| "",
+                  checkOut : result[i].checkOut || "",
                      guestName : result[i].guestName|| "",
                      //bookingId : result[i].bookingId ||"",
                      roomrate : parseFloat(result[i].roomCharges) || "",
-                    // bookedBy : getbookingdetails(result[i].details) || "",
+                     bookedBy : getbookingdetails(result[i].details) || "",
                      refnumber : getrefnymber(result[i].details)|| "",
                      agentname : getagentname(result[i].details)|| "",
-                     status : result[i].paymentData.billingStatus
+                     Amount : result[i].paymentData.balance || "",
+                     status : result[i].paymentData.billingStatus , 
+                     TotalAmount :result[i].totalAmount || "",
+                     Advance : result[i].advance ||""
+
                     //  commisionPercent : 15,
                     //  commission : parseFloat(result[i].roomCharges)*15/100
                    })
@@ -154,6 +176,8 @@ dataBaseConnection().then(dbs =>{
                  res.send(agentreport);
                
                })
+               
+               
                
             }
             
@@ -184,8 +208,30 @@ function getagentname(data){
     agentname = data[i].agent;
   }
   return agentname;
+
 }
 
+function getGuestReport(data,type){
+  let agentreport = [];
+  for(const i in data){
+    if((type == "Agent Collection(Non-Billed)") && (data[i].bookedBy=="Agent")){
+
+      agentreport.push({
+       // billNo : data[i].billingId || "",
+       // name : result[i].guestName || "",
+       checkIn : data[i].checkIn || "",
+       checkOut : data[i].checkOut || "",
+        guestName: (data[i].firstName+" "+data[i].lastName) || "",
+        roomrate : parseFloat(data[i].roomCharges) || "",
+        bookedBy : data[i].bookedBy || "",
+        refnumber : data[i].referencenumber|| "",
+        agentname : (data[i].agent)|| ""
+      })
+    }
+               }
+               return agentreport;
+              
+ }
 module.exports = router;
 
               

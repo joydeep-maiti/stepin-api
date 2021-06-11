@@ -212,6 +212,21 @@ dataBaseConnection().then(dbs => {
       console.log(error);
     }
   });
+
+  router.get("/expectedcheckouts", cors(), async (req, res) => {
+
+    let start = new Date().toISOString().split("T")[0]+"T00:00:00.000Z"
+    let end = new Date().toISOString().split("T")[0]+"T23:59:59.999Z"
+
+    try {
+      findByObj(dbs, collections.booking, {"status.checkedIn":true, "status.checkedOut":false, $and: [{checkOut: {'$gte': start }}, {checkOut: {'$lte': end }}]})
+      .then(result=>{
+        res.status(200).send(result)
+      })
+    } catch (error) {
+      console.log(error);
+    }
+  });
 });
 
 module.exports = router;

@@ -174,6 +174,40 @@ dataBaseConnection().then(dbs => {
     });
 });
 
+dataBaseConnection().then(dbs => {
+  router.get("/agentcommission/:menu", cors(), async (req, res) => {
+    console.log("GET /rate", req.query)
+    let submenu=[]
+    
+    let menu = req.params.menu;
+    try {
+        findOne(dbs, collections.reporttype, {type : menu})
+        .then((result)=>{
+          //console.log(result)
+          //console.log(result.subtypes);
+            if(result)
+            {
+              for(const i in result.subtypes1)
+              {
+                console.log(result.subtypes1[i].active)
+                if(result.subtypes1[i].active == true){
+                  submenu.push(
+                    result.subtypes1[i].type
+                  )
+                }
+                if(i == result.subtypes1.length-1){
+                res.status(200).send(submenu)
+                }
+            }
+            }
+         });
+        }catch (error) {
+        console.log(error);
+      }
+      // res.status(200).send()
+    });
+});
+
 function getBookingReport(data,type){
   var bookingreport=[];
   for(const i in data){

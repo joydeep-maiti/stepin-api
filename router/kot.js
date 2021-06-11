@@ -70,7 +70,8 @@ dataBaseConnection().then(dbs => {
     })
     .then(result => {
       if(result){
-        res.status(200).send({"kotId":x[0].kotId})
+        console.log("KOTID",x[0].kot[0].kotId)
+        res.status(200).json({"kotId":x[0].kot[0].kotId})
       }else{
         res.status(401).send()
       }
@@ -103,7 +104,7 @@ console.log("PATCH /kot", req.body,body)
     .then(result => {
       if(result){
         console.log("Kotid",x[0].kotId)
-        res.status(200).send({"kotId":x[0].kotId})
+        res.status(200).json({"kotId":x[0].kotId})
       }else{
         res.status(401).send()
       }

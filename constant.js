@@ -28,6 +28,7 @@ const collections = {
   laundaryInventory:"laundaryInventory",
   houseKeepingInventory:"houseKeepingInventory",
   access:"access",
+  kot : "kot",
   userlog:"userlog"
 };
 

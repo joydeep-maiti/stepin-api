@@ -35,7 +35,7 @@ dataBaseConnection().then(dbs => {
   });
 
   router.post("/pos", cors(), async (req, res) => {
-    console.log("POST /pos", req.body)
+   // console.log("POST /pos", req.body)
     findOne(dbs, collections.pos,{bookingId: new ObjectID(req.body.bookingId)})
     .then(result => {
       if(result){
@@ -74,7 +74,7 @@ dataBaseConnection().then(dbs => {
 
   router.patch("/pos", cors(), async (req, res) => {
     const {_id, ...body} = req.body
-    console.log("PATCH /pos", req.body,body)
+    //console.log("PATCH /pos", req.body,body)
     try {
       updateOne(dbs, collections.pos, {_id:new ObjectID(_id)}, {$set:{pos:body.pos}}).then(result => res.status(200).send());
     } catch (error) {

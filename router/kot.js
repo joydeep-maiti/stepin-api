@@ -21,6 +21,7 @@ const {
 dataBaseConnection().then(dbs => {
   router.get("/kot", cors(), async (req, res) => {
     try {
+      console.log("getAll")
      // findAll(dbs, collections.kot).then(result => res.status(200).send(result));
      findAll(dbs,collections.kot).then(result => res.status(200).send(result));
      //console.log("sam",result)
@@ -29,10 +30,17 @@ dataBaseConnection().then(dbs => {
     }
   });
 
-  router.get("/kot/:id", cors(), async (req, res) => {
+  router.get("/kotById/:id/:kotId", cors(), async (req, res) => {
     console.log("Get",req.params.id)
+    console.log("Get",req.params.kotId)
     try {
-      findOne(dbs, collections.kot, {bookingId:new ObjectID(req.params.id)}).then(result => res.status(200).send(result));
+      findByObj(dbs, collections.kot, {bookingId:new ObjectID(req.params.id),"kot.kotId": req.params.kotId }).then(result => {
+        
+        //console.log(result)
+        var kotArray=getByKotId(result[0],req.params.kotId)
+        res.status(200).send(kotArray)
+       
+      });
     } catch (error) {
       console.log(error);
     }
@@ -89,7 +97,7 @@ console.log("PATCH /kot", req.body,body)
     .then(result => {
       if(result){
          x=getPatchBody(body,result)
-          return updateOne(dbs, collections.kot,{bookingId: new ObjectID(req.body.bookingId)},{$push: { kot: x[0]}})
+          return updateOne(dbs, collections.kot,{bookingId: new ObjectID(req.body.bookingId)},{$set: { kot: x[0]}})
       }else{
         res.status(401).send()
       }
@@ -115,7 +123,47 @@ console.log("PATCH /kot", req.body,body)
     })
   });
 
+  router.patch("/kotById", cors(), async (req, res) => {
+    const {bookingId, ...body} = req.body
+    let x=[]
+    console.log("PATCH /KOTbyId", body.kotArray[0])
+    try {
+      // x=getPatchKot(body)
+     console.log(body.kotId)
+      updateOne(dbs, collections.kot, {"kot.kotId": body.kotId }, {$push: { kot: body.kotArray}}).then(result => res.status(200).send());
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
 })
+
+function getPatchKot(res){
+  var body=[]
+  body.push({
+    //kotId: "KOT"+(1000000+Number(seq.seq)),
+    kotArray : res.kotArray
+  })
+  console.log(body)
+  return body
+}
+
+function getByKotId(res,id){
+  var kot=[]
+  //console.log(res," ",id)
+  for(const i in res.kot)
+  {
+    if(res.kot[i].kotId == id){
+      kot.push({
+        //bookingId: res.bookingId ,
+        //kot: res.kot[i]
+        kot: res.kot[i].kotArray
+      })
+    }
+  }
+  //console.log(kot)
+  return kot
+}
 
 function getPatchBody(kotbody,seq)
 {
@@ -135,7 +183,6 @@ function getBody(kotbody,seq){
     kot :  getKot(kotbody.kotArray,seq),
   })
   return body
-
 }
 
 function getKot(sam,seq){
@@ -143,7 +190,7 @@ function getKot(sam,seq){
   console.log("kotArray",sam)
   // for(const i in sam){
     kot.push({
-      kotId: "KOT"+(1000+Number(seq.seq)),
+      kotId: "KOT"+(1000000+Number(seq.seq)),
       kotArray: sam
 
     })

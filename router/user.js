@@ -71,19 +71,24 @@ dataBaseConnection().then(dbs => {
             'permissions': 1
           }
         }
-      ]).toArray(function(err, result) {
+      ]).toArray(async function(err, result) {
         if(err)
           res.status(500).send()
         if(result.length){
-          let body = {
-            username: result[0].username,
-            login: new Date().toISOString()
+          const loggedinRes = await dbs.collection(collections.userlog).find({username:result[0].username}).sort({_id:-1}).limit(1).toArray()
+          if(loggedinRes[0] && loggedinRes[0].login){
+            res.status(401).json({msg:"Already logged in"})
+          }else{
+            let body = {
+              username: result[0].username,
+              login: new Date().toISOString()
+            }
+            insertOne(dbs, collections.userlog, body)
+            .then(_response => {
+              // console.log("_response",_response)
+              res.status(200).send(result)
+            });
           }
-          insertOne(dbs, collections.userlog, body)
-          .then(_response => {
-            // console.log("_response",_response)
-            res.status(200).send(result)
-          });
         }
         else
           res.status(400).send()

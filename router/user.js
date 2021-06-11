@@ -74,14 +74,41 @@ dataBaseConnection().then(dbs => {
       ]).toArray(function(err, result) {
         if(err)
           res.status(500).send()
-        if(result.length)
-          res.status(200).send(result)
+        if(result.length){
+          let body = {
+            username: result[0].username,
+            login: new Date().toISOString()
+          }
+          insertOne(dbs, collections.userlog, body)
+          .then(_response => {
+            // console.log("_response",_response)
+            res.status(200).send(result)
+          });
+        }
         else
           res.status(400).send()
       });
     } catch (error) {
       console.log(error);
       res.status(500).send(result)
+    }
+  });
+
+  router.post("/user/logout", cors(), async (req, res) => {
+    console.log("POST /user/logout", req.body)
+    try {
+      let body = {
+        username: req.body.username,
+        logout: new Date().toISOString()
+      }
+      insertOne(dbs, collections.userlog, body)
+      .then(_response => {
+        // console.log("_response",_response)
+        res.status(200).send()
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send()
     }
   });
 

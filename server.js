@@ -26,6 +26,7 @@ const collectionReportRouter = require ('./router/collectionReport')
 const agentReport = require('./router/agentReport');
 const kotRouter = require('./router/kot')
 const access = require ('./router/access')
+const userlog = require ('./router/userlog')
 const bodyParser = require("body-parser");
 require("./router/dataBaseConnection");
 
@@ -71,6 +72,7 @@ app.use(collectionReportRouter)
 app.use(agentReport)
 app.use(access)
 app.use(kotRouter)
+app.use(userlog)
 app.use(express.json());
 
 // start the server

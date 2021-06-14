@@ -97,6 +97,7 @@ dataBaseConnection().then(dbs => {
       res.status(500).send()
     })
   });
+
   router.patch("/kot", cors(), async (req, res) => {
     const {bookingId, ...body} = req.body
     let x = [];
@@ -105,7 +106,8 @@ console.log("PATCH /kot", req.body,body)
     .then(result => {
       if(result){
          x=getPatchBody(body,result)
-          return updateOne(dbs, collections.kot,{bookingId: new ObjectID(req.body.bookingId)},{$set: { kot: x[0]}})
+         console.log(x)
+          return updateOne(dbs, collections.kot,{bookingId: new ObjectID(req.body.bookingId)},{$push: { kot: x[0]}})
       }else{
         res.status(401).send()
       }
@@ -138,7 +140,9 @@ console.log("PATCH /kot", req.body,body)
     try {
       // x=getPatchKot(body)
      console.log(body.kotId)
-      updateOne(dbs, collections.kot, {"kot.kotId": body.kotId }, {$push: { kot: body.kotArray}}).then(result => res.status(200).send());
+      updateOne(dbs, collections.kot, {"kot.kotId": body.kotId }, {$push: { kot: body.kotArray}}).then(result =>{ 
+        console.log("result",result)
+        res.status(200).send()});
     } catch (error) {
       console.log(error);
     }

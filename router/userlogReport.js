@@ -24,7 +24,11 @@ dataBaseConnection().then(dbs => {
       to = to+"T23:59:59.999Z"
   
       try {
-        findByObj(dbs,collections.userlog,{username:user, $or:[{login:{$gte:from,$lte:to}}, {logout:{$gte:from,$lte:to}}]}).then(result => res.status(200).send(result));
+        if(user==="All User"){
+          findByObj(dbs,collections.userlog,{$or:[{login:{$gte:from,$lte:to}}, {logout:{$gte:from,$lte:to}}]}).then(result => res.status(200).send(result));
+        }else {
+          findByObj(dbs,collections.userlog,{username:user, $or:[{login:{$gte:from,$lte:to}}, {logout:{$gte:from,$lte:to}}]}).then(result => res.status(200).send(result));
+        }
       } catch (error) {
         console.log(error);
       }

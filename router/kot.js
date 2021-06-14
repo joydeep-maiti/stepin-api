@@ -29,6 +29,14 @@ dataBaseConnection().then(dbs => {
       console.log(error);
     }
   });
+  router.get("/kot/:id", cors(), async (req, res) => {
+    console.log("Get",req.params.id)
+    try {
+      findOne(dbs, collections.kot, {bookingId:new ObjectID(req.params.id)}).then(result => res.status(200).send(result));
+    } catch (error) {
+      console.log(error);
+    }
+  });
 
   router.get("/kotById/:id/:kotId", cors(), async (req, res) => {
     console.log("Get",req.params.id)
@@ -150,7 +158,7 @@ function getPatchKot(res){
 
 function getByKotId(res,id){
   var kot=[]
-  //console.log(res," ",id)
+  console.log("KOT",res)
   for(const i in res.kot)
   {
     if(res.kot[i].kotId == id){

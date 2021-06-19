@@ -124,7 +124,56 @@ dataBaseConnection().then(dbs =>{
               })
               
 
+            } 
+            if(reportType == "All Agent Commission" ){
+              dbs.collection('billing').aggregate([
+                {
+                  $lookup:
+                  {
+                    from: "booking",
+                    localField: "bookingId",
+                    foreignField: "_id",
+                    as: "details"
+                  }
+          
+                }
+                ,
+                {
+                  $match: {'details.checkOut': {$gte:date,$lte:date1},"details.bookedBy":"Agent"}
+              }
+  
+               
+              ]).toArray(function (err, result) {
+               console.log(result)
+                //var report = getagentReport(reportType, result)
+                var agentreport = [];
+                for(const i in result){
+                  agentreport.push({
+                    billNo : result[i].billingId || "",
+                   // name : result[i].guestName || "",
+                   // billingDate : result[i].checkOut || "",
+                   checkIn : (result[i].checkIn)|| "",
+                  checkOut : result[i].checkOut || "",
+                    guestName : result[i].guestName|| "",
+                    bookingId : result[i].bookingId ||"",
+                    roomrate : parseFloat(result[i].roomCharges) || "",
+                   // bookedBy : getbookingdetails(result[i].details) || "",
+                    refnumber : getrefnymber(result[i].details)|| "",
+                    agentname : getagentname(result[i].details)|| "",
+                    commisionPercent : 15,
+                    commission : parseFloat(result[i].roomCharges)*15/100
+                  })
+                }
+               
+  
+  
+                res.send(agentreport);
+              
+              })
+              
+
             }
+
             if(reportType == "Due from Agent"){
               console.log("hi")
               dbs.collection('billing').aggregate([

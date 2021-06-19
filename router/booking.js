@@ -87,8 +87,9 @@ dataBaseConnection().then(dbs => {
     if(date == "Invalid Date"){
       res.status(400).send()
     }else{
-      let todate =  moment(req.body.fromDate).add(1,'w').toISOString().split("T")[0]
-      let fromDate =  moment(req.body.fromDate).toISOString().split("T")[0]
+      let todate =  moment(req.body.fromDate).add(8,'d').toISOString().split("T")[0]
+      let fromDate =  req.body.fromDate.split("T")[0]
+      console.log("fromDate",fromDate,todate)
       try {
         const filter = {
           $and: [

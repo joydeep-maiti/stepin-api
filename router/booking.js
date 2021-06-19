@@ -81,6 +81,31 @@ dataBaseConnection().then(dbs => {
     }
   });
 
+  router.post("/bookings/filterByWeek", cors(), async (req, res) => {
+    console.log("/bookings/filterByWeek")
+    let date =new Date(req.body.fromDate) ;
+    if(date == "Invalid Date"){
+      res.status(400).send()
+    }else{
+      let todate =  moment(req.body.fromDate).add(1,'w').toISOString().split("T")[0]
+      let fromDate =  moment(req.body.fromDate).toISOString().split("T")[0]
+      try {
+        const filter = {
+          $and: [
+            {$or:[{$and:[{checkIn:{$gte: fromDate}},{checkIn:{$lte: todate}}]}, {$and:[{checkOut:{$gte: fromDate}},{checkOut:{$lte: todate}}]}]},
+            { "status.cancel": { $eq: false } },
+            { "status.checkedOut": { $eq: false } }
+          ]
+        };
+        findByObj(dbs, collections.booking, filter).then(result => {
+          res.send(result);
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  });
+
   getMonths = (checkIn, checkOut) => {
     checkIn = momentTimeZone.tz(checkIn, "Asia/Kolkata").format();
     checkOut = momentTimeZone.tz(checkOut, "Asia/Kolkata").format();

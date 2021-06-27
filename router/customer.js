@@ -33,6 +33,14 @@ dataBaseConnection().then(dbs => {
       console.log(error);
     }
   });
+
+  // router.post("/customer", cors(), async (req, res) => {
+  //   try {
+  //     insertOne(dbs, collections.customer, {bookingId:new ObjectID(req.body.id)}).then(result => res.status(200).send(result));
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // });
 })
 
 module.exports = router;

@@ -28,7 +28,7 @@ dataBaseConnection().then(dbs => {
 
   router.get("/booking/idproof/:id", cors(), async (req, res) => {
     try {
-      findOne(dbs, collections.idproof, {bookingId:new ObjectID(req.params.id)}).then(result => res.status(200).send(result));
+      findOne(dbs, collections.idproof, { bookingId: new ObjectID(req.params.id) }).then(result => res.status(200).send(result));
     } catch (error) {
       console.log(error);
     }
@@ -36,19 +36,19 @@ dataBaseConnection().then(dbs => {
 
   router.get("/bookings/dayCheckin", cors(), async (req, res) => {
     console.log(req.query.date)
-    let nulls = ["null","undefined", null, undefined]
-    let date = req.query.date && !nulls.includes(req.query.date)? new Date(req.query.date).toISOString(): new Date().toISOString()
-    let start = date.split("T")[0]+"T00:00:00.000Z"
-    let end = date.split("T")[0]+"T23:59:59.999Z"
+    let nulls = ["null", "undefined", null, undefined]
+    let date = req.query.date && !nulls.includes(req.query.date) ? new Date(req.query.date).toISOString() : new Date().toISOString()
+    let start = date.split("T")[0] + "T00:00:00.000Z"
+    let end = date.split("T")[0] + "T23:59:59.999Z"
     try {
       const filter = {
         'checkIn': {
           '$lte': end
-        }, 
+        },
         'checkOut': {
           '$gte': start
-        }, 
-        'status.checkedIn': true, 
+        },
+        'status.checkedIn': true,
         'status.checkedOut': false
       }
 
@@ -73,8 +73,28 @@ dataBaseConnection().then(dbs => {
           { "status.checkedOut": { $eq: false } }
         ]
       };
-      findByObj(dbs, collections.booking, filter).then(result => {
-        res.send(result);
+      // findByObj(dbs, collections.booking, filter).then(result => {
+      //   res.send(result);
+      // });
+      dbs.collection(collections.booking).aggregate([
+        {
+          '$match': filter
+        }, {
+          '$lookup': {
+            'from': 'customer', 
+            'localField': '_id', 
+            'foreignField': 'bookingId', 
+            'as': 'guests'
+          }
+        }
+      ]).toArray(async function(err, result) {
+        if(err)
+          res.status(500).send()
+        if(result.length){
+          res.status(200).send(result)
+        }
+        else
+          res.status(400).send()
       });
     } catch (error) {
       console.log(error);
@@ -83,23 +103,43 @@ dataBaseConnection().then(dbs => {
 
   router.post("/bookings/filterByWeek", cors(), async (req, res) => {
     console.log("/bookings/filterByWeek")
-    let date =new Date(req.body.fromDate) ;
-    if(date == "Invalid Date"){
+    let date = new Date(req.body.fromDate);
+    if (date == "Invalid Date") {
       res.status(400).send()
-    }else{
-      let todate =  moment(req.body.fromDate).add(8,'d').toISOString().split("T")[0]
-      let fromDate =  req.body.fromDate.split("T")[0]
-      console.log("fromDate",fromDate,todate)
+    } else {
+      let todate = moment(req.body.fromDate).add(8, 'd').toISOString().split("T")[0]
+      let fromDate = req.body.fromDate.split("T")[0]
+      console.log("fromDate", fromDate, todate)
       try {
         const filter = {
           $and: [
-            {$or:[{$and:[{checkIn:{$gte: fromDate}},{checkIn:{$lte: todate}}]}, {$and:[{checkOut:{$gte: fromDate}},{checkOut:{$lte: todate}}]}]},
+            { $or: [{ $and: [{ checkIn: { $gte: fromDate } }, { checkIn: { $lte: todate } }] }, { $and: [{ checkOut: { $gte: fromDate } }, { checkOut: { $lte: todate } }] }] },
             { "status.cancel": { $eq: false } },
             { "status.checkedOut": { $eq: false } }
           ]
         };
-        findByObj(dbs, collections.booking, filter).then(result => {
-          res.send(result);
+        // findByObj(dbs, collections.booking, filter).then(result => {
+        //   res.send(result);
+        // });
+        dbs.collection(collections.booking).aggregate([
+          {
+            '$match': filter
+          }, {
+            '$lookup': {
+              'from': 'customer', 
+              'localField': '_id', 
+              'foreignField': 'bookingId', 
+              'as': 'guests'
+            }
+          }
+        ]).toArray(async function(err, result) {
+          if(err)
+            res.status(500).send()
+          if(result.length){
+            res.status(200).send(result)
+          }
+          else
+            res.status(400).send()
         });
       } catch (error) {
         console.log(error);
@@ -126,32 +166,43 @@ dataBaseConnection().then(dbs => {
 
   router.post("/bookings/insert", cors(), async (req, res) => {
     try {
-      let {idProofImage,...booking} = req.body;
+      let { idProofImage, additionalGuests,...booking } = req.body;
+      additionalGuests = [
+        {firstName: booking.firstName, lastName: booking.lastName, gender: booking.gender, Idproof: booking.Idproof},
+        ...additionalGuests
+      ]
       booking["months"] = getMonths(booking.checkIn, booking.checkOut);
       booking["bookingId"] = booking.firstName + booking.lastName;
       //Adding advance to advance
-      console.log("Advance value",booking["advance"])
-      let advance = [{date: booking.bookingDate,advanceP : booking.advance,modeofpayment : "Booking", reciptNumber : "Booking"}];
+      console.log("Advance value", booking["advance"])
+      let advance = [{ date: booking.bookingDate, advanceP: booking.advance, modeofpayment: "Booking", reciptNumber: "Booking" }];
       let rooms = [...booking.rooms]
       //insertOne(dbs, collections.advancetab,{advance, bookingId: new ObjectID(req.body._id),guestName: `${booking.firstName} ${booking.lastName}`,rooms, advanceId:"ADVANCE"+(1000000+Number(booking.seq))})
       insertOne(dbs, collections.booking, booking)
-      .then(result =>
-        insertOne(dbs, collections.idproof, {
-          bookingId: result.insertedId,
-          idProofImage: idProofImage
-        })
-      )
-      .then(result =>
-        insertOne(dbs, collections.advancetab,{
-          bookingId: booking._id,
-           advance,
-           guestName: `${booking.firstName} ${booking.lastName}`,
-           rooms,
-           advanceId:"ADVANCE"+(1000000+Number(result.seq))})
+        .then(result =>
+          insertOne(dbs, collections.idproof, {
+            bookingId: result.insertedId,
+            idProofImage: idProofImage
+          })
         )
-      .then(result =>
-        res.status(200).send(result)
-      );
+        .then(result =>
+          insertOne(dbs, collections.advancetab, {
+            bookingId: booking._id,
+            advance,
+            guestName: `${booking.firstName} ${booking.lastName}`,
+            rooms,
+            advanceId: "ADVANCE" + (1000000 + Number(result.seq))
+          })
+        )
+        .then(result => 
+          insertOne(dbs, collections.customer, {
+            bookingId: booking._id,
+            guests: [ ...additionalGuests]
+          })
+        )
+        .then(result =>
+          res.status(200).send(result)
+        );
     } catch (error) {
       console.log(error);
     }
@@ -160,10 +211,14 @@ dataBaseConnection().then(dbs => {
   router.put("/bookings/update", cors(), async (req, res) => {
     try {
       console.log("enterted")
-      let {idProofImage,...booking} = req.body;
-      
-      let advance =  booking.advance;
-      console.log("advance",advance)
+      let { idProofImage, additionalGuests,...booking } = req.body;
+      additionalGuests = [
+        {firstName: booking.firstName, lastName: booking.lastName, gender: booking.gender, Idproof: booking.Idproof},
+        ...additionalGuests
+      ]
+
+      let advance = booking.advance;
+      console.log("advance", advance)
       booking["months"] = getMonths(req.body.checkIn, req.body.checkOut);
       booking["_id"] = new ObjectID(booking._id);
       updateOne(
@@ -171,25 +226,34 @@ dataBaseConnection().then(dbs => {
         collections.booking,
         { _id: booking._id },
         { $set: booking }
-      ).then(result => 
+      ).then(result =>
         updateOne(
           dbs,
           collections.idproof,
           { bookingId: booking._id },
-          { $set: {idProofImage:idProofImage} }
+          { $set: { idProofImage: idProofImage } }
         )
       ).then(result =>
         updateOne(
           dbs,
           collections.advancetab,
           { bookingId: booking._id },
-          { $set :{advance : [{date: booking.bookingDate,advanceP : booking.advance,modeofpayment : "Booking", reciptNumber : "Booking"}]}}
+          { $set: { advance: [{ date: booking.bookingDate, advanceP: booking.advance, modeofpayment: "Booking", reciptNumber: "Booking" }] } }
           //{ $set : {'advance[0].advanceP': advance}}
         )
+      )
+      .then(result =>
+        updateOne(
+          dbs,
+          collections.customer,
+          { bookingId: booking._id },
+          { $set: { guests: additionalGuests} }
+          //{ $set : {'advance[0].advanceP': advance}}
         )
-      .then(result => 
-        res.status(200).send(result)
-      );
+      )
+        .then(result =>
+          res.status(200).send(result)
+        );
     } catch (error) {
       console.log(error);
     }
@@ -209,15 +273,15 @@ dataBaseConnection().then(dbs => {
   router.get("/checkouts", cors(), async (req, res) => {
     let date = new Date().toJSON().split("T")[0]
     // date = '2021-04-20'
-    console.log("/checkouts",date)
+    console.log("/checkouts", date)
     try {
       // findByObj(dbs, collections.billing, {checkOut:{$gte:date}})
       dbs.collection(collections.billing).aggregate([
         {
           '$lookup': {
-            'from': 'booking', 
-            'localField': 'bookingId', 
-            'foreignField': '_id', 
+            'from': 'booking',
+            'localField': 'bookingId',
+            'foreignField': '_id',
             'as': 'bookingDetails'
           }
         }, {
@@ -231,9 +295,9 @@ dataBaseConnection().then(dbs => {
             'path': '$bookingDetails'
           }
         }
-      ]).toArray(function(err, result) {
+      ]).toArray(function (err, result) {
         res.send(result)
-       });
+      });
     } catch (error) {
       console.log(error);
     }
@@ -241,14 +305,14 @@ dataBaseConnection().then(dbs => {
 
   router.get("/expectedcheckouts", cors(), async (req, res) => {
 
-    let start = new Date().toISOString().split("T")[0]+"T00:00:00.000Z"
-    let end = new Date().toISOString().split("T")[0]+"T23:59:59.999Z"
+    let start = new Date().toISOString().split("T")[0] + "T00:00:00.000Z"
+    let end = new Date().toISOString().split("T")[0] + "T23:59:59.999Z"
 
     try {
-      findByObj(dbs, collections.booking, {"status.checkedIn":true, "status.checkedOut":false, $and: [{checkOut: {'$gte': start }}, {checkOut: {'$lte': end }}]})
-      .then(result=>{
-        res.status(200).send(result)
-      })
+      findByObj(dbs, collections.booking, { "status.checkedIn": true, "status.checkedOut": false, $and: [{ checkOut: { '$gte': start } }, { checkOut: { '$lte': end } }] })
+        .then(result => {
+          res.status(200).send(result)
+        })
     } catch (error) {
       console.log(error);
     }

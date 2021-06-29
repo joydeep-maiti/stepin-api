@@ -6,7 +6,7 @@ const moment = require("moment")
 const router = new express.Router();
 const dataBaseConnection = require("./dataBaseConnection");
 const collections = require("../constant").collections;
-const { findAll, findOne, findByObj} = require("./data");
+const { findAll, findOne, findByObj } = require("./data");
 const { ObjectID, Db } = require("mongodb");
 const { response } = require("express");
 
@@ -14,33 +14,33 @@ dataBaseConnection().then(dbs => {
 
   router.get("/search/booking", cors(), async (req, res) => {
     console.log("GET /search/booking", req.query);
-    let nulls = ["null","undefined", null, undefined]
+    let nulls = ["null", "undefined", null, undefined]
     let param = req.query.search
-    if(req.query.checkin && !nulls.includes(req.query.checkin)){
-      let date =new Date(req.query.checkin) ;
+    if (req.query.checkin && !nulls.includes(req.query.checkin)) {
+      let date = new Date(req.query.checkin);
       // console.log("date",date)
-      if(date == "Invalid Date"){
+      if (date == "Invalid Date") {
         res.status(400).send()
-      }else{
+      } else {
         date = date.toISOString()
-        let start = date.split("T")[0]+"T00:00:00.000Z"
-        let end = date.split("T")[0]+"T23:59:59.999Z"
-        getCheckinForDate(dbs,res, start, end)
+        let start = date.split("T")[0] + "T00:00:00.000Z"
+        let end = date.split("T")[0] + "T23:59:59.999Z"
+        getCheckinForDate(dbs, res, start, end)
       }
-    }else if(param && !nulls.includes(param)){
-      guestSearch(dbs,res, param)
-    }else if(req.query.searchdate && !nulls.includes(req.query.searchdate)){
-      let date =new Date(req.query.searchdate) ;
+    } else if (param && !nulls.includes(param)) {
+      guestSearch(dbs, res, param)
+    } else if (req.query.searchdate && !nulls.includes(req.query.searchdate)) {
+      let date = new Date(req.query.searchdate);
       // console.log("date",date)
-      if(date == "Invalid Date"){
+      if (date == "Invalid Date") {
         res.status(400).send()
-      }else{
-        guestSearchByDate(dbs,res, req.query.searchdate)
+      } else {
+        guestSearchByDate(dbs, res, req.query.searchdate)
       }
-    }else {
+    } else {
       res.status(400).send()
     }
-    
+
   })
 
   router.get("/search", cors(), async (req, res) => {
@@ -142,9 +142,32 @@ function getsearchData(data, fname, lname, contact) {
   return searchdata;
 }
 
-const guestSearch = (dbs,res,param)=>{
+const guestSearch = (dbs, res, param) => {
   dbs.collection('booking').aggregate([
     {
+      '$lookup': {
+        'from': 'customer',
+        'localField': '_id',
+        'foreignField': 'bookingId',
+        'as': '_guests'
+      }
+    }, {
+      '$sort': {
+        '_id': -1
+      }
+    }, {
+      '$unwind': {
+        'path': '$_guests'
+      }
+    }, {
+      '$addFields': {
+        'guests': '$_guests.guests'
+      }
+    }, {
+      '$unwind': {
+        'path': '$guests'
+      }
+    }, {
       '$match': {
         '$or': [
           {
@@ -159,15 +182,23 @@ const guestSearch = (dbs,res,param)=>{
             'contactNumber': {
               '$regex': new RegExp(param, 'i')
             }
+          }, {
+            'guests.firstName': {
+              '$regex': new RegExp(param, 'i')
+            }
+          }, {
+            'guests.lastName': {
+              '$regex': new RegExp(param, 'i')
+            }
           }
         ],
-        'status.checkedIn':true
+        'status.checkedIn': true
       }
     }, {
       '$lookup': {
-        'from': 'billing', 
-        'localField': '_id', 
-        'foreignField': 'bookingId', 
+        'from': 'billing',
+        'localField': '_id',
+        'foreignField': 'bookingId',
         'as': 'bill'
       }
     }, {
@@ -176,14 +207,74 @@ const guestSearch = (dbs,res,param)=>{
       }
     }
   ]).toArray(function (err, result) {
-    if(result)
+    if (result)
       res.status(200).send(result)
     console.log(err)
     res.status(500).send()
   })
 }
 
-const guestSearchByDate = (dbs,res,param)=>{
+// const guestSearch2 = (dbs, res, param) => {
+//   dbs.collection('booking').aggregate([{
+//     '$lookup': {
+//       'from': 'customer',
+//       'localField': '_id',
+//       'foreignField': 'bookingId',
+//       'as': '_guests'
+//     }
+//   }, {
+//     '$unwind': {
+//       'path': '$_guests'
+//     }
+//   }, {
+//     '$addFields': {
+//       'guests': '$_guests.guests'
+//     }
+//   }, {
+//     '$unwind': {
+//       'path': '$guests'
+//     }
+//   },
+//   {
+//     '$match': {
+//       '$or': [
+//         {
+//           'lastName': {
+//             '$regex': new RegExp(param, 'i')
+//           }
+//         }, {
+//           'firstName': {
+//             '$regex': new RegExp(param, 'i')
+//           }
+//         }, {
+//           'contactNumber': {
+//             '$regex': new RegExp(param, 'i')
+//           }
+//         }
+//       ],
+//       'status.checkedIn': true
+//     }
+//   }, {
+//     '$lookup': {
+//       'from': 'billing',
+//       'localField': '_id',
+//       'foreignField': 'bookingId',
+//       'as': 'bill'
+//     }
+//   }, {
+//     '$sort': {
+//       'checkIn': -1
+//     }
+//   }
+//   ]).toArray(function (err, result) {
+//     if (result)
+//       res.status(200).send(result)
+//     console.log(err)
+//     res.status(500).send()
+//   })
+// }
+
+const guestSearchByDate = (dbs, res, param) => {
   dbs.collection('booking').aggregate([
     {
       '$match': {
@@ -198,13 +289,13 @@ const guestSearchByDate = (dbs,res,param)=>{
             }
           }
         ],
-        'status.checkedIn':true
+        'status.checkedIn': true
       }
     }, {
       '$lookup': {
-        'from': 'billing', 
-        'localField': '_id', 
-        'foreignField': 'bookingId', 
+        'from': 'billing',
+        'localField': '_id',
+        'foreignField': 'bookingId',
         'as': 'bill'
       }
     }, {
@@ -213,22 +304,23 @@ const guestSearchByDate = (dbs,res,param)=>{
       }
     }
   ]).toArray(function (err, result) {
-    if(result)
+    if (result)
       res.status(200).send(result)
     console.log(err)
     res.status(500).send()
   })
 }
 
-const getCheckinForDate = (dbs,res, start, end)=>{
+
+const getCheckinForDate = (dbs, res, start, end) => {
   try {
     const filter = {
       'checkIn': {
         '$lte': end
-      }, 
+      },
       'checkIn': {
         '$gte': start
-      }, 
+      },
       'status.checkedIn': true
     }
 

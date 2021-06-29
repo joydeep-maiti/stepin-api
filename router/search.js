@@ -152,10 +152,6 @@ const guestSearch = (dbs, res, param) => {
         'as': '_guests'
       }
     }, {
-      '$sort': {
-        '_id': -1
-      }
-    }, {
       '$unwind': {
         'path': '$_guests'
       }
@@ -171,14 +167,6 @@ const guestSearch = (dbs, res, param) => {
       '$match': {
         '$or': [
           {
-            'lastName': {
-              '$regex': new RegExp(param, 'i')
-            }
-          }, {
-            'firstName': {
-              '$regex': new RegExp(param, 'i')
-            }
-          }, {
             'contactNumber': {
               '$regex': new RegExp(param, 'i')
             }

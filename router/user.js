@@ -75,8 +75,11 @@ dataBaseConnection().then(dbs => {
         if(err)
           res.status(500).send()
         if(result.length){
+          if(result[0].role==="Admin" && result[0].department==="IT"){
+
+          }
           const loggedinRes = await dbs.collection(collections.userlog).find({username:result[0].username}).sort({_id:-1}).limit(1).toArray()
-          if(loggedinRes[0] && loggedinRes[0].login){
+          if(loggedinRes[0] && loggedinRes[0].login && (result[0].role!=="Admin" || result[0].department!=="IT")){
             res.status(401).json({msg:"Already logged in"})
           }else{
             let body = {

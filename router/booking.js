@@ -90,11 +90,7 @@ dataBaseConnection().then(dbs => {
       ]).toArray(async function(err, result) {
         if(err)
           res.status(500).send()
-        if(result.length){
-          res.status(200).send(result)
-        }
-        else
-          res.status(400).send()
+        res.status(200).send(result)
       });
     } catch (error) {
       console.log(error);
